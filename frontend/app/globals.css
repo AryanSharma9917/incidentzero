@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #0b1220; }
+.font-mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+::selection { background: rgba(94, 230, 168, 0.25); color: white; }
