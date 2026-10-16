@@ -13,6 +13,7 @@ Phase 1 foundation provides:
 - local environment configuration; and
 - basic backend and frontend quality checks.
 - typed Nebius Token Factory and Tavily integration clients.
+- a reproducible local Kind lab with three incident scenarios.
 
 The LangGraph agent workflow and Kubernetes sandbox are intentionally deferred until their respective milestones.
 
@@ -70,6 +71,10 @@ Open <http://localhost:3000>.
 cd backend && pytest
 cd frontend && npm run lint && npm run typecheck && npm run build
 ```
+
+## Kubernetes demo lab
+
+The local sandbox includes healthy, OOMKilled, configuration CrashLoop, and readiness-probe states for `payment-api`. See [sandbox/README.md](sandbox/README.md) for setup, scenario, reset, and expected-evidence commands.
 
 ## Integrations
 
