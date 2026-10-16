@@ -12,8 +12,9 @@ Phase 1 foundation provides:
 - a Next.js, TypeScript, and Tailwind CSS frontend shell;
 - local environment configuration; and
 - basic backend and frontend quality checks.
+- typed Nebius Token Factory and Tavily integration clients.
 
-The agent workflow, AI integrations, and Kubernetes sandbox are intentionally deferred until the foundation is verified.
+The LangGraph agent workflow and Kubernetes sandbox are intentionally deferred until their respective milestones.
 
 ## Project structure
 
@@ -30,6 +31,8 @@ incidentzero/
 
 Copy the example environment file with `cp .env.example .env`.
 
+For live integrations, set `NEBIUS_API_KEY`, `NEBIUS_MODEL`, and `TAVILY_API_KEY` in the root `.env`. The application loads this file for local development; deployed environments should inject the same variables through their secret manager.
+
 ### Backend
 
 ```bash
@@ -41,6 +44,15 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 Open <http://localhost:8000/health> to verify the API.
+
+To make one minimal live request to Nebius and Tavily:
+
+```bash
+cd backend
+python -m scripts.check_integrations
+```
+
+This command consumes provider quota. It is intentionally a developer command rather than a public HTTP endpoint.
 
 ### Frontend
 
@@ -59,11 +71,11 @@ cd backend && pytest
 cd frontend && npm run lint && npm run typecheck && npm run build
 ```
 
-## Planned integrations
+## Integrations
 
-- NVIDIA Nemotron through Nebius Token Factory
-- LangGraph orchestration
-- Tavily research
+- NVIDIA Nemotron through Nebius Token Factory (client implemented)
+- Tavily research (client implemented)
+- LangGraph orchestration (planned)
 - Kubernetes and Kind sandbox verification
 - SQLite persistence and Server-Sent Events
 

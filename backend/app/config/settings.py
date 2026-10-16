@@ -1,5 +1,11 @@
 import os
 from dataclasses import dataclass
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+
+load_dotenv(Path(__file__).parents[3] / ".env")
 
 
 def _cors_origins() -> list[str]:
@@ -10,6 +16,20 @@ def _cors_origins() -> list[str]:
 @dataclass(frozen=True, slots=True)
 class Settings:
     cors_origins: list[str]
+    nebius_api_key: str | None
+    nebius_base_url: str
+    nebius_model: str
+    tavily_api_key: str | None
+    tavily_base_url: str
 
 
-settings = Settings(cors_origins=_cors_origins())
+settings = Settings(
+    cors_origins=_cors_origins(),
+    nebius_api_key=os.getenv("NEBIUS_API_KEY") or None,
+    nebius_base_url=os.getenv(
+        "NEBIUS_BASE_URL", "https://api.tokenfactory.nebius.com/v1"
+    ).rstrip("/"),
+    nebius_model=os.getenv("NEBIUS_MODEL", "nvidia/Nemotron-3_5-Lightning"),
+    tavily_api_key=os.getenv("TAVILY_API_KEY") or None,
+    tavily_base_url=os.getenv("TAVILY_BASE_URL", "https://api.tavily.com").rstrip("/"),
+)
