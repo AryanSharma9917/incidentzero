@@ -4,6 +4,16 @@
 
 IncidentZero is being built for the Nebius x NVIDIA Global AI Hackathon 2026. It will collect incident evidence, reason with NVIDIA Nemotron through Nebius Token Factory, research with Tavily, propose a controlled remediation, and verify the result in a Kubernetes sandbox before requesting human approval.
 
+## Project handoff
+
+Developers and coding agents must begin with:
+
+- [State of Play](docs/INCIDENTZERO_STATE_OF_PLAY.md) — current implementation, verification evidence, constraints, and exact next task.
+- [Master Build Plan](docs/MASTER_BUILD_PLAN.md) — complete milestone and acceptance plan through submission.
+- [Codex Collaborator Guide](docs/CODEX_COLLABORATOR_GUIDE.md) — setup and ready-to-use continuation prompt.
+
+The root [AGENTS.md](AGENTS.md) requires every future change set to update the state of play.
+
 ## Current status
 
 Phase 1 foundation provides:
