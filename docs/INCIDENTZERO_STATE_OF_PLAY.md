@@ -1,12 +1,12 @@
 # IncidentZero — State of Play
 
-Last updated: October 17, 2026 (Asia/Kolkata), product-integration PR preparation
+Last updated: October 17, 2026 (Asia/Kolkata), product-integration branch published; PR authentication pending
 
 This is the canonical live handoff document for developers and coding agents. Update it in every change set that modifies the project. Historical claims must remain truthful: distinguish mocked verification, local live verification, and work that still requires credentials or deployment access.
 
 ## Current checkpoint
 
-The foundation through sandbox-verification implementation is complete. Product integration (the October 23 milestone) is now implemented on local branch `feat/product-integration`, based on `8a5ef55` (`fix: complete live sandbox workflow verification`). The user has authorized committing, pushing this branch, and opening a PR against `main`. Publication is being prepared; no deployment or provider-quota use is authorized by this request.
+The foundation through sandbox-verification implementation is complete. Product integration (the October 23 milestone) is now implemented on local branch `feat/product-integration`, based on `8a5ef55` (`fix: complete live sandbox workflow verification`). The implementation is committed as `f2439e5` (`feat: integrate persisted incident runs and live product workspace`) and pushed to `origin/feat/product-integration`. The user requested a PR against `main`; creation is blocked because GitHub CLI/default API credentials are absent and the GitHub plugin is not installed/connected. SSH push succeeded. The ready-to-use PR title/description is in `docs/PR_PRODUCT_INTEGRATION.md`. A follow-up documentation commit records this publication outcome. No deployment or provider-quota use occurred.
 
 The new product includes SQLite incident/run persistence, background graph execution, REST APIs, resumable SSE, safe local demo preparation, evidence-based RCA/Markdown export, and Dashboard, Incidents, Agent Runs, and detail screens. Metrics come only from persisted demo history. One active run is enforced transactionally; a file lease prevents a second API process from recovering another process's active database. Restart recovery makes interrupted runs terminal failures.
 
@@ -161,9 +161,9 @@ Current product-integration checkpoint:
 - `cd frontend && npm run lint && npm run typecheck && npm test && npm run build`: passed, including **4 deterministic frontend tests** and Next.js 15.5.28 production build.
 - `cd frontend && PLAYWRIGHT_CHROMIUM_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' npm run test:browser`: **2 passed**, using the real UI, HTTP API, worker, SQLite, SSE/report routes, and an explicitly mocked test executor. Verified OOM click-through, persisted reload, mobile navigation, terminal failure while SSE is blocked, and sanitized errors. This is Chrome local browser verification, not cross-browser verification or live model/Kind acceptance.
 - Visually inspected the browser-generated run-detail screenshot; screenshot and browser outputs remain Git-ignored test artifacts.
-- `git diff --check`: passed. Local branch remains `feat/product-integration`, based on `8a5ef55`, with this change set uncommitted.
+- `git diff --check`: passed. Implementation commit `f2439e5` is published on `origin/feat/product-integration`, based on `8a5ef55`; a documentation follow-up records the publication outcome.
 - `npm install --no-audit --no-fund` succeeded with network permission. **Known pre-existing tooling problem:** `npm ci` on local npm 11.19.0 fails with `Missing: sharp@ from lock file`; the existing Next sharp override/optional-peer resolution is incompatible with clean-install validation in this environment. A direct optional-sharp attempt did not fix it and was reverted. Use the verified `npm install` setup for now; do not claim `npm ci` passed.
-- No live provider calls, provider quota, local Kind operations, commit, push, PR, or deployment in this change set.
+- No live provider calls, provider quota, local Kind operations, or deployment. The implementation was committed/pushed at the user’s subsequent request; no PR has been created yet.
 
 Files created/changed for this checkpoint:
 
@@ -369,6 +369,8 @@ a6d5da2 Initial commit
 ```
 
 ## State change log
+
+- October 17, 2026: committed product integration as `f2439e5` and pushed `feat/product-integration` to origin at the user’s request. PR creation is blocked by absent GitHub API authentication/CLI; GitHub plugin discovery confirmed it is available but not installed/connected. Saved the exact PR title and description in `docs/PR_PRODUCT_INTEGRATION.md`. Next publication action: authenticate/connect GitHub, create the PR against `main`, and record its returned URL. The next engineering task remains live product acceptance.
 
 - October 17, 2026: user requested publication of the product-integration PR. Reviewed the change set and prepared the Conventional Commit, PR title, verification evidence, and explicit live-acceptance/tooling limits. Removed a stray root lockfile dependency entry left by the reverted optional-sharp experiment so it matches package.json. Publication outcome will be recorded after GitHub confirms it.
 
