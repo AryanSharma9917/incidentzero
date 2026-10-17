@@ -1,0 +1,8 @@
+{
+  "status": "pending",
+  "required_successful_runs": 5,
+  "accepted_live_runs": [],
+  "provider_verification": "pending",
+  "local_kubernetes_product_acceptance": "pending",
+  "note": "Historical real Kind + mocked reasoning acceptance is recorded in the state of play. It does not count as five live provider-to-Kind runs. Use the guarded recorder and review its sanitized artifacts before publishing evidence."
+}

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960" role="img" aria-labelledby="title desc">
+<title id="title">IncidentZero architecture and execution boundaries</title>
+<desc id="desc">A Next.js workspace talks to FastAPI and SQLite. LangGraph invokes real model reasoning and conditional research, validates patches, and selects local Kind or labeled simulation. Production changes are outside the system.</desc>
+<rect width="1440" height="960" fill="#0b1220"/>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#5ee6a8"/></marker></defs>
+<g font-family="system-ui, sans-serif"><text x="50" y="62" fill="#5ee6a8" font-size="15" letter-spacing="3">INCIDENTZERO / SYSTEM ARCHITECTURE</text><text x="50" y="110" fill="#eef4fc" font-size="30" font-weight="600">From evidence to a reviewable change</text>
+<rect x="50" y="150" width="320" height="150" rx="10" fill="#111e30" stroke="#37506a"/>
+<text x="70" y="183" fill="#eff6ff" font-size="18" font-weight="600">Operator workspace</text>
+<text x="70" y="212" fill="#afc2d7" font-size="13">Next.js + TypeScript + Tailwind</text>
+<text x="70" y="237" fill="#afc2d7" font-size="13">Incident history, timeline, diff, RCA</text>
+<rect x="415" y="150" width="550" height="150" rx="10" fill="#111e30" stroke="#37506a"/>
+<text x="435" y="183" fill="#eff6ff" font-size="18" font-weight="600">API and run manager</text>
+<text x="435" y="212" fill="#afc2d7" font-size="14">FastAPI REST + replayable SSE</text>
+<text x="435" y="237" fill="#afc2d7" font-size="14">One background worker loop per run</text>
+<rect x="1010" y="150" width="380" height="150" rx="10" fill="#111e30" stroke="#37506a"/>
+<text x="1030" y="183" fill="#eff6ff" font-size="18" font-weight="600">Durable local history</text>
+<text x="1030" y="212" fill="#afc2d7" font-size="13">SQLite: incidents, runs, snapshots, events</text>
+<text x="1030" y="237" fill="#afc2d7" font-size="13">Single active-run claim + restart recovery</text>
+<rect x="50" y="365" width="320" height="175" rx="10" fill="#111e30" stroke="#37506a"/>
+<text x="70" y="398" fill="#eff6ff" font-size="18" font-weight="600">Reasoning and research</text>
+<text x="70" y="427" fill="#afc2d7" font-size="13">NVIDIA Nemotron via Nebius Token Factory</text>
+<text x="70" y="452" fill="#afc2d7" font-size="13">Tavily only when research is requested</text>
+<text x="70" y="477" fill="#afc2d7" font-size="13">Typed output + bounded repair</text>
+<rect x="415" y="365" width="550" height="175" rx="10" fill="#111e30" stroke="#37506a"/>
+<text x="435" y="398" fill="#eff6ff" font-size="18" font-weight="600">LangGraph investigation</text>
+<text x="435" y="427" fill="#afc2d7" font-size="14">Intake → evidence → hypotheses → optional research</text>
+<text x="435" y="452" fill="#afc2d7" font-size="14">Final diagnosis → candidate → validation</text>
+<text x="435" y="477" fill="#afc2d7" font-size="14">Failed validation → one bounded retry</text>
+<rect x="1010" y="365" width="380" height="175" rx="10" fill="#111e30" stroke="#37506a"/>
+<text x="1030" y="398" fill="#eff6ff" font-size="18" font-weight="600">Persisted operator evidence</text>
+<text x="1030" y="427" fill="#afc2d7" font-size="13">Sources and diagnosis confidence</text>
+<text x="1030" y="452" fill="#afc2d7" font-size="13">Patch and validation history</text>
+<text x="1030" y="477" fill="#afc2d7" font-size="13">Markdown RCA for human review</text>
+<rect x="415" y="580" width="550" height="90" rx="10" fill="#111e30" stroke="#37506a"/>
+<text x="435" y="613" fill="#eff6ff" font-size="18" font-weight="600">Deterministic configuration policy</text>
+<text x="435" y="642" fill="#afc2d7" font-size="14">Safe YAML · exact target · one allowed change domain</text>
+<rect x="50" y="725" width="635" height="145" rx="10" fill="#111e30" stroke="#37506a"/>
+<text x="70" y="758" fill="#eff6ff" font-size="18" font-weight="600">Local Kind adapter</text>
+<text x="70" y="787" fill="#afc2d7" font-size="14">Real evidence, allow-listed patch application, rollout, owned pods, logs, /health</text>
+<text x="70" y="812" fill="#afc2d7" font-size="14">Fixed kind-incidentzero / incidentzero-demo / payment-api</text>
+<text x="70" y="837" fill="#afc2d7" font-size="14">Success: verified (point-in-time, not a sustained soak)</text>
+<rect x="735" y="725" width="655" height="145" rx="10" fill="#111e30" stroke="#37506a"/>
+<text x="755" y="758" fill="#eff6ff" font-size="18" font-weight="600">Hosted simulation adapter</text>
+<text x="755" y="787" fill="#afc2d7" font-size="14">Manifest-derived, explicitly simulated evidence and configuration checks</text>
+<text x="755" y="812" fill="#afc2d7" font-size="14">Real model reasoning; no Kubernetes or HTTP health operations</text>
+<text x="755" y="837" fill="#afc2d7" font-size="14">Success: simulated — never counted as a Kubernetes-verified fix</text>
+<path d="M 370 225 H 415" fill="none" stroke="#5ee6a8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 965 225 H 1010" fill="none" stroke="#5ee6a8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 690 300 V 365" fill="none" stroke="#5ee6a8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 370 450 H 415" fill="none" stroke="#5ee6a8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 965 450 H 1010" fill="none" stroke="#5ee6a8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 690 540 V 580" fill="none" stroke="#5ee6a8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 690 670 V 696 H 365 V 725" fill="none" stroke="#5ee6a8" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M 690 696 H 1060 V 725" fill="none" stroke="#5ee6a8" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="50" y="918" fill="#a7f3d0" font-size="16">Production remains read-only. No production approval/apply engine is implemented.</text>
+<text x="50" y="944" fill="#91a8c3" font-size="13">Architecture diagram, not live deployment evidence. Mocked UI rehearsal assets have a separate visible provenance label.</text>
+</g></svg>

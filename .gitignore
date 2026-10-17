@@ -28,3 +28,7 @@ coverage/
 # Browser test artifacts
 frontend/test-results/
 frontend/playwright-report/
+
+# Local live acceptance evidence; review/sanitize before intentionally publishing
+/artifacts/
+/docs/assets/recording-tmp/
