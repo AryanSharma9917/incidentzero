@@ -1,20 +1,20 @@
 # IncidentZero — State of Play
 
-Last updated: October 17, 2026 (Asia/Kolkata), October 24 branch pushed; PR authentication pending
+Last updated: October 17, 2026 (Asia/Kolkata), October 25 freeze/submission branch publication
 
 This is the canonical live handoff document for developers and coding agents. Update it in every change set that modifies the project. Historical claims must remain truthful: distinguish mocked verification, local live verification, and work that still requires credentials or deployment access.
 
 ## Current checkpoint
 
-The user explicitly moved scope to the October 24 deployment-and-polish milestone while October 23 live product acceptance remains pending. Local `main` now contains merge commit `a7d7d1d` (PR #2, product integration). Current work is isolated on `feat/deployment-polish`, based on that clean merged checkpoint; implementation commit `a0a0066` is pushed to `origin/feat/deployment-polish`. PR creation against `main` is pending authenticated GitHub API access: no default API credential/CLI is available, and the GitHub plugin is unconnected. The exact title/description is saved in `docs/PR_DEPLOYMENT_POLISH.md`. A documentation follow-up records the publication outcome. No deployment or provider quota was used.
+The user explicitly advanced scope to October 25 freeze/submission work. October 24 preparation is merged into local `main` at `4594d42` (PR #3); public deployment and earlier live provider/product acceptance remain pending. Current work is isolated on `feat/freeze-submission`, based on that clean merged checkpoint; the user has now authorized committing and pushing this branch and will create the PR manually.
 
-October 24 implementation is prepared locally: a polished landing page; typed runtime metadata and explicit hosted simulation mode; real Nemotron/Tavily reasoning preserved; separate `simulated` terminal status that cannot inflate Kubernetes-verified metrics; mode/ephemeral-storage notices and access-code controls; production environment/CORS validation; run pause and daily-start bound; structured operational logs; standalone Next.js packaging; non-root Dockerfiles/loopback Compose setup; an optional Render free-tier blueprint; and a read-only public smoke-check script. See `docs/deployment.md` for exact contracts, source references, and deployment steps.
+The local packet includes a complete README; architecture, safety, demo, and development docs; user-selected MIT license; editable SVG/PNG architecture diagram; eight 3:2 screenshots with visible mocked-execution labels; a captioned silent rehearsal video; reproducible test-only capture tooling/provenance; a guarded plan-only five-run acceptance recorder; offline package/release-gate checks; an unpublished DEV.to article and Devpost field draft; and explicit pending acceptance/publication manifests.
 
-**Public deployment is not complete.** The user prefers existing hosting/hackathon credits and supplied the Nebius hackathon link. The official FAQ says promotional credits are Token Factory credits, with no separately published AI Cloud grant, and application hosting can be elsewhere. The user's actual compute entitlement/account remains unverified. Render was discovered as an available but unconnected fallback. No hosting resources, public URL, deployment, payment, provider-quota request, live model call, or Kubernetes mutation occurred in this change set.
+**October 25 is not complete or submission-ready.** There are zero accepted live golden-path runs in the committed template. Actual public URL, container verification, live Nebius/Tavily and UI-to-Kind acceptance, five successful runs, final live video/upload, team/visibility confirmations, article publication, and Devpost submission remain pending. Rehearsal media is mocked model/search/Kubernetes output and must not be relabeled as live proof. No hosting, payment, provider quota, live Kubernetes mutation, article/video upload, or Devpost submission occurred. Git branch publication is now explicitly authorized; its confirmed outcome will be recorded below.
 
-Local verification: the expanded backend suite has 83 passing tests; frontend lint/typecheck and five domain tests pass. Six browser scenarios each passed in Chromium and WebKit (12 checks); Firefox fails at launch with “Could not find profile folder” before loading the application, including with an explicit writable temporary path. The final production build, standalone asset preparation, and standalone HTTP route/asset checks passed; exact commands and remaining limits are recorded below. Mocked reasoning/Kubernetes browser fixtures are not live provider or cluster acceptance.
+Local verification is recorded below. The expanded backend suite currently has 88 passing tests, including refusal of simulated/incomplete/duplicated release evidence. Frontend lint/typecheck, five domain tests, and production build passed. The capture workflow produced eight 1440×960 PNGs and a media-inspected WebM under three minutes with a visible mock banner; final media/package and regression results are recorded below. Prior Chromium/WebKit checks passed; Firefox's startup limitation remains.
 
-The next engineering task is to verify container images on a Docker-equipped machine and publish the reviewed branch to a confirmed free/credited hosting account, initially with runs paused; configure exact frontend/backend HTTPS origins and secrets, run read-only public checks, then deliberately authorize provider quota for hosted simulation acceptance. Record the real URL and persistence lifetime. Separately complete the pending real UI → Nemotron → local Kind OOMKilled acceptance, conditional Tavily check, and lab reset. The engineering deadline remains October 25, 2026.
+The exact next task after branch publication/manual PR creation is to review this packet, complete the pending actual hosting/container/provider/Kind acceptance with deliberate quota authorization, record five distinct successful real OOM runs and a healthy reset, then record/upload a final live video, confirm team/access details, and publish approved submission materials. Use the provided runbook and readiness gates; do not mark the milestone complete from rehearsal/package integrity alone. The internal engineering deadline remains October 25, 2026.
 
 ## Product goal
 
@@ -162,9 +162,39 @@ payment-api   1/1 Running   0 restarts
 - Added non-root backend/frontend Dockerfiles, loopback Compose with a named local volume, standalone runtime asset preparation, an optional explicitly free Render blueprint with auto-deploy off, and a read-only HTTPS deployment-check script.
 - Actual public hosting, container runtime checks, provider access, and real Kind acceptance remain pending. Do not mark October 24 complete from local packaging/tests alone.
 
+### October 25 local freeze/submission preparation
+
+- User selected MIT; added root `LICENSE`. Rewrote README with real/pending links, features, workflow, architecture, stack, setup, full configuration, testing, screenshot gallery, roadmap, team confirmation, and explicit limits.
+- Added `docs/architecture.md`, `docs/safety.md`, `docs/demo.md`, `docs/development.md`, editable architecture SVG and PNG export. Corrected stale sandbox health-proxy/RCA and merged-branch documentation claims.
+- Added isolated mocked submission fixture and Playwright capture configuration/script. Eight 3:2 screenshots and a captioned silent WebM carry a visible mock banner; metadata records all external boundaries as mocked, PNG dimensions, actual inspected video duration and hash. These are rehearsal assets, not final live evidence.
+- Added guarded five-run API acceptance recorder: plan-only by default, explicit execution/quota flags, loopback API and local Kind guard, no active-run reset race, strict real-mode/OOM/score/check requirements, sanitized records, and healthy reset only after terminal outcomes. Live execution was not run.
+- Added offline package/link/provenance checks and separate fail-closed release-readiness checks; simulated, missing, or duplicate acceptance records cannot satisfy the five-run gate. These inspect declared evidence, not independently attested provider transport.
+- Added unpublished DEV.to article, Devpost field draft, reviewed-packet instructions, zero-run acceptance template, and explicit unresolved readiness gates. No major product feature was added.
+
 ## Test inventory and last verified results
 
-Current October 24 local checkpoint:
+Current October 25 local checkpoint:
+
+- `backend/.venv/bin/python -m pytest backend -q`: **88 passed**. Added acceptance assessment, mocked five-run sequencing/reset, no-reset-while-active, and fail-closed release-gate tests. No model/cluster call occurred in these tests.
+- `backend/.venv/bin/python -m pip check`: passed. Compileall of `backend/app`, `backend/tests`, `backend/scripts`, `scripts`, and `deploy`: passed.
+- Frontend lint, typecheck, **5 domain tests**, and production standalone build/asset preparation: passed. The product's runtime source was not changed during freeze preparation.
+- `npm run capture:submission`: **1 capture workflow passed** with the real graph/policy/verifier and mocked Nemotron/Tavily/kubectl boundaries. Eight 1440×960 PNGs (3:2), editable architecture SVG/PNG, mocked RCA sample, and silent captioned WebM are versioned under `docs/assets`. The final WebM was inspected at **155.08 seconds (2:35.08)**, below three minutes; its SHA-256/duration and all mock provenance are in `capture-manifest.json`. Capture owns isolated servers/database and stops them on exit.
+- Reviewed research/validation screenshots and architecture export; mock banner is visible. Fixed the RCA sample's provenance to be a visible Markdown notice, not a hidden HTML comment.
+- `PYTHONPATH=backend backend/.venv/bin/python -m scripts.record_golden_runs`: **plan-only passed**, explicitly making no HTTP/provider/Kubernetes calls. Live execution with quota flags was **not run**.
+- `python3 scripts/check_submission.py`: local files/links/PNG dimensions/provenance/video hash/duration integrity passed. `--release-ready`: **expected exit 1**, listing unresolved live/deployment/visibility/team/publication gates and missing five accepted live runs. This intentional refusal is not a regression failure or proof of release readiness.
+- `npm run test:browser -- --project=chromium --project=webkit` (with the existing local Chrome executable and temporary Playwright browser directory): **12 passed** on the freeze branch. These are mocked local regression checks. Firefox remains blocked by the already-recorded profile launch issue; no Firefox pass is claimed.
+- `git diff --check`: passed. Branch `feat/freeze-submission`, base `4594d42`; publication is authorized and in progress. User explicitly selected MIT. No hosting, provider quota, live cluster mutation, article/video upload, or Devpost submission.
+
+Files created/changed for October 25:
+
+- Root `LICENSE` (MIT), complete `README.md`, and ignored local acceptance/capture-intermediate artifacts.
+- `docs/architecture.md`, `docs/safety.md`, `docs/demo.md`, `docs/development.md`, and `docs/submission/{README.md,article.md,devpost.md,readiness.json,golden-path-results.json}`.
+- `docs/assets/architecture.{svg,png}`, eight screenshot PNGs, `rehearsal.webm`, `rehearsal-rca.md`, and `capture-manifest.json`.
+- `backend/scripts/record_golden_runs.py`, `backend/tests/{submission_fixture.py,test_golden_recorder.py,test_submission_gate.py}`, and `scripts/check_submission.py`.
+- `frontend/playwright.capture.config.ts`, `frontend/tests/capture/submission.spec.ts`, capture npm command; refreshed stale sandbox/deployment docs and this handoff.
+- Recommended Conventional Commit: `chore: prepare feature-freeze evidence and submission packet`.
+
+Historical October 24 local checkpoint:
 
 - `backend/.venv/bin/python -m pytest backend -q`: **83 passed**. New checks cover environment/CORS/startup validation, production default pause, protected mutations, explicit HTTP 429 limits, all three configuration simulations, rejection of insufficient memory patches and unsafe changes, real graph execution with mocked providers, distinct simulation terminal status/RCA, and structured metadata-only logs.
 - `backend/.venv/bin/python -m pip check`: passed. `backend/.venv/bin/python -m compileall -q backend/app backend/tests deploy`: passed.
@@ -336,16 +366,20 @@ Implementation is locally test-verified with mocked external boundaries. The use
 
 Exit criterion: the product UI drives the real persisted workflow to a clear terminal state with attributable evidence and sandbox verification.
 
-### Later milestones
+### Current user-authorized milestone: October 25 local preparation
+
+Local documentation, rehearsals, tooling, and submission drafts are prepared. The acceptance/publication gates in `docs/submission/readiness.json` remain unresolved; no five-run stability or final-submission claim is valid yet.
+
+### Earlier pending acceptance and deployment
 
 - October 24 (active): local implementation/packaging prepared; confirm hosting access and free/credited capacity, validate containers, publish initially paused, verify real HTTPS URL/CORS/SSE and deliberately authorized provider calls. Firefox launch remains locally blocked.
-- October 25: feature freeze, five golden-path runs, bug fixes, full documentation, screenshots, architecture diagram, demo video, DEV.to article, Devpost submission.
+- October 25 (active preparation): local docs, license, eight mock-labeled screenshots, architecture diagram, rehearsal video, acceptance tools, article/submission drafts are prepared. Complete actual live runs, final video/publication, and submission before calling the milestone done.
 
 ## Explicitly pending
 
 - Live provider credential/connectivity verification and UI/API-to-Kind acceptance of product integration.
 - Actual public deployment and container-runtime verification. Hosted simulation, basic operator access gating, logging, and landing polish are now implemented locally; credentials/hosting and real acceptance remain pending.
-- Final five-run golden-path stability acceptance and submission screenshots, video, DEV.to article, and Devpost entry.
+- Final five-run live stability acceptance; final live video/upload; approved article publication and Devpost submission. Current screenshots/video are explicitly mocked rehearsal assets, and article/submission fields are drafts.
 - Sustained health/soak measurements; current sandbox verification remains point-in-time.
 
 ## Judging-criteria alignment
@@ -406,6 +440,10 @@ a6d5da2 Initial commit
 ```
 
 ## State change log
+
+- October 17, 2026: user authorized committing/pushing `feat/freeze-submission` and will create the PR manually. Rechecked package integrity, backend tests, and diff formatting; prepared `docs/PR_FREEZE_SUBMISSION.md` with title, review scope, verification, and unresolved live/submission requirements. Publication outcome will be recorded after the push succeeds.
+
+- October 17, 2026: user explicitly requested October 25 implementation and selected MIT. Confirmed October 24 PR #3 is merged at `4594d42`; created `feat/freeze-submission`. Prepared full documentation/license, architecture exports, mock-labeled screenshot/video capture, guarded acceptance recorder, package/readiness checks, and unpublished article/Devpost packet. Verified 88 backend tests, five frontend tests, 12 Chromium/WebKit regression checks, lint/typecheck/build, dependency integrity, compilation, a labeled capture workflow, and offline package integrity. Final rehearsal video is 155.08 seconds; readiness intentionally refuses release while live/publication evidence is absent. No real golden-path/provider run or external publication; earlier deployment/live gates remain pending.
 
 - October 17, 2026: committed October 24 preparation as `a0a0066` and successfully pushed `feat/deployment-polish` to origin. GitHub returned the PR creation URL, but no PR was created because API authentication is absent. Saved title/description in `docs/PR_DEPLOYMENT_POLISH.md`; user can use the GitHub PR form or connect authenticated GitHub access. Actual hosting/live acceptance work remains unchanged and pending.
 

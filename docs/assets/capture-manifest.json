@@ -1,0 +1,69 @@
+{
+  "captured_at": "2026-10-17T17:40:29.578Z",
+  "provenance": "mocked-ui-rehearsal",
+  "reasoning": "mocked",
+  "research": "mocked",
+  "infrastructure": "mocked",
+  "video": "rehearsal.webm",
+  "video_status": "captioned silent rehearsal; not final live demo",
+  "screenshots": [
+    {
+      "file": "screenshots/01-landing.png",
+      "subject": "IncidentZero investigates Kubernetes incidents. This recording uses mocked external boundaries; live provider and five-run acceptance remain pending.",
+      "provenance": "mocked-ui-rehearsal",
+      "width": 1440,
+      "height": 960
+    },
+    {
+      "file": "screenshots/02-dashboard.png",
+      "subject": "History and metrics come from persisted runs. The production architecture uses FastAPI, SQLite, Server-Sent Events, and LangGraph.",
+      "provenance": "mocked-ui-rehearsal",
+      "width": 1440,
+      "height": 960
+    },
+    {
+      "file": "screenshots/03-incident.png",
+      "subject": "The OOMKilled golden path starts with payment-api. Real execution collects pods, events, resources, and current/previous logs.",
+      "provenance": "mocked-ui-rehearsal",
+      "width": 1440,
+      "height": 960
+    },
+    {
+      "file": "screenshots/04-timeline.png",
+      "subject": "The agent timeline persists every stage. In a live run, NVIDIA Nemotron through Nebius Token Factory generates hypotheses and a final diagnosis.",
+      "provenance": "mocked-ui-rehearsal",
+      "width": 1440,
+      "height": 960
+    },
+    {
+      "file": "screenshots/05-diagnosis.png",
+      "subject": "This fixture diagnosis is mocked. The real integration validates structured model output, confidence, evidence, and citations with one bounded repair attempt.",
+      "provenance": "mocked-ui-rehearsal",
+      "width": 1440,
+      "height": 960
+    },
+    {
+      "file": "screenshots/06-research.png",
+      "subject": "Tavily is conditional. This fixture illustrates compact, attributable sources; it does not represent a live Tavily request.",
+      "provenance": "mocked-ui-rehearsal",
+      "width": 1440,
+      "height": 960
+    },
+    {
+      "file": "screenshots/07-remediation-diff.png",
+      "subject": "A concrete YAML patch must pass the deterministic allow-list. No model-generated shell commands are executed; remediation is bounded to two attempts.",
+      "provenance": "mocked-ui-rehearsal",
+      "width": 1440,
+      "height": 960
+    },
+    {
+      "file": "screenshots/08-validation.png",
+      "subject": "Validation here is mocked. Local Kind mode performs real rollout, owned-pod, restart, log, and HTTP health checks. Hosted simulation is labeled separately.",
+      "provenance": "mocked-ui-rehearsal",
+      "width": 1440,
+      "height": 960
+    }
+  ],
+  "video_duration_seconds": 155.08,
+  "video_sha256": "cf1d425e131ab9840deba5fbc4a989ba5bd8c882b3fbd1f4f0536d3885d7985c"
+}

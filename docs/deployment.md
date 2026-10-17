@@ -55,7 +55,7 @@ For existing credited container hosting, build both images from the repository r
 
 ## Optional Render fallback
 
-1. Authenticate/connect a Render account with repository access. Use the branch containing this change, or merge it after review. The reviewed implementation is published on `feat/deployment-polish` at `a0a0066`; PR creation still requires GitHub API authentication or the web form.
+1. Authenticate/connect a Render account with repository access. Use the branch containing this change, or merge it after review. The deployment-preparation implementation was merged into `main` by PR #3 (`4594d42`). The freeze/submission branch adds documentation and rehearsal assets; use its reviewed/merged revision when ready.
 2. Create the two services from `render.yaml`, verifying both explicitly remain on `free` and that the account's shared free instance-hour allowance is available. Never accept a paid upgrade to resolve a deployment failure.
 3. Enter the frontend's exact public HTTPS origin as backend `CORS_ORIGINS`; enter the backend's public HTTPS origin as frontend `NEXT_PUBLIC_API_URL`. Confirm the generated secret code exists. Provide provider keys through hosting secrets.
 4. Deploy with runs **paused**. Inspect startup logs and `/health`, `/api/runtime`, `/dashboard`, and all assets. Cold starts can exceed an initial UI request timeout; the runtime notice retries without an endless spinner.

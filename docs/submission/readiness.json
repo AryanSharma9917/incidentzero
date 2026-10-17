@@ -1,0 +1,63 @@
+{
+  "status": "not-ready-for-submission",
+  "internal_feature_complete_deadline": "2026-10-25",
+  "submission_deadline": "2026-10-30",
+  "gates": [
+    {
+      "id": "public_demo",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "repository_public",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "container_runtime",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "live_nebius",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "conditional_tavily",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "five_live_oom_runs",
+      "status": "pending",
+      "evidence": "golden-path-results.json"
+    },
+    {
+      "id": "final_live_video",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "public_video_url",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "devto_published",
+      "status": "pending",
+      "evidence": "article.md"
+    },
+    {
+      "id": "team_confirmation",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "devpost_submitted",
+      "status": "pending",
+      "evidence": "devpost.md"
+    }
+  ],
+  "local_assets": "Rehearsal screenshots/video and documentation are separate from release acceptance. Do not turn pending gates into passed without actual evidence."
+}
