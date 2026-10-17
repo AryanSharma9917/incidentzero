@@ -24,3 +24,10 @@ test("both terminal states end live loading", () => {
   assert.equal(isTerminal(run({ status: "running" })), false);
   assert.equal(isTerminal(run({ status: "queued" })), false);
 });
+
+
+test("simulation is terminal but cannot inflate verified fix metrics", () => {
+  const simulated = run({ status: "simulated", finished_at: "2026-10-17T10:00:30Z" });
+  assert.equal(isTerminal(simulated), true);
+  assert.deepEqual(metrics([simulated]), { total: 1, active: 0, verified: 0, averageSeconds: 30 });
+});

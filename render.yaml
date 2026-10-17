@@ -1,0 +1,48 @@
+# Optional ₹0 fallback when existing credits do not include application hosting.
+# Keep runs paused until the operator explicitly authorizes provider quota.
+services:
+  - type: web
+    name: incidentzero-api
+    runtime: python
+    plan: free
+    autoDeployTrigger: "off"
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port $PORT --workers 1 --no-access-log
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.12
+      - key: APP_ENV
+        value: production
+      - key: EXECUTION_MODE
+        value: simulation
+      - key: RUNS_ENABLED
+        value: "false"
+      - key: DAILY_RUN_LIMIT
+        value: "20"
+      - key: STORAGE_EPHEMERAL
+        value: "true"
+      - key: CORS_ORIGINS
+        sync: false
+      - key: DEMO_RUN_TOKEN
+        generateValue: true
+      - key: NEBIUS_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+  - type: web
+    name: incidentzero-web
+    runtime: node
+    plan: free
+    rootDir: frontend
+    autoDeployTrigger: "off"
+    buildCommand: npm install --no-audit --no-fund && npm run build
+    startCommand: HOSTNAME=0.0.0.0 node .next/standalone/server.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 22.23.2
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: NEXT_PUBLIC_API_URL
+        sync: false

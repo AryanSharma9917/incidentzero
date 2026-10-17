@@ -29,14 +29,16 @@ def generate_report(state: dict) -> str:
     """Render validated evidence; no additional model claims or invented impact."""
     incident = state.get("incident", {})
     diagnosis = state.get("final_diagnosis", {})
-    verified = state.get("validation_passed", False)
+    simulated = state.get("execution_mode") == "simulation"
+    verified = state.get("validation_passed", False) and not simulated
     evidence = diagnosis.get("supporting_evidence", [])
     history = state.get("validation_history", [])
     lines = [
         f"# RCA: {incident.get('title', 'Incident')}",
         f"\nIncident: {state.get('incident_id')}\nService: {incident.get('service')}",
         f"Severity: {incident.get('severity')}\nEnvironment: {incident.get('environment')}",
-        "\n## Impact", "Controlled sandbox incident. Production impact was not measured.",
+        "\n## Execution mode", "SIMULATION: infrastructure evidence and validation are simulated; no Kubernetes operations or HTTP health checks were executed." if simulated else "Local Kubernetes sandbox.",
+        "\n## Impact", "Controlled demo incident. Production impact was not measured.",
         "\n## Root cause", diagnosis.get("root_cause", "No final diagnosis available."),
         "\n## Evidence",
         *[f"- {item['statement']}" + (f" ({item['source_url']})" if item.get("source_url") else "") for item in evidence],
@@ -44,7 +46,7 @@ def generate_report(state: dict) -> str:
         *[f"- {event['stage']}: {event['message']}" for event in state.get("timeline_events", [])],
         "\n## Resolution", state.get("remediation_plan", "No approved candidate generated."),
         "```yaml", state.get("patch", ""), "```",
-        "\n## Validation", "Verified in the controlled sandbox." if verified else "Sandbox resolution was not verified.",
+        "\n## Validation", "Simulation passed; this is not a Kubernetes-verified resolution." if simulated and state.get("validation_passed") else "Verified in the controlled sandbox." if verified else "Sandbox resolution was not verified.",
         *[f"- Attempt {index + 1}: {result['score']}/100; {'PASS' if result['passed'] else 'FAIL'}"
           for index, result in enumerate(history)],
         "\n## Preventive actions",

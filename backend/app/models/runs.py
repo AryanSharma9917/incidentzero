@@ -22,7 +22,7 @@ class IncidentRecord(BaseModel):
 class RunRecord(BaseModel):
     id: str
     incident_id: str
-    status: Literal["queued", "running", "verified", "failed"] = "queued"
+    status: Literal["queued", "running", "verified", "simulated", "failed"] = "queued"
     created_at: str = Field(default_factory=utc_now)
     finished_at: str | None = None
     result: dict[str, Any] = Field(default_factory=dict)

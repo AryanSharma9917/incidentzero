@@ -1,7 +1,7 @@
 import type { Run, RunEvent } from "./api";
 
 export function metrics(runs: Run[]) {
-  const completed = runs.filter(run => run.status === "verified" || run.status === "failed");
+  const completed = runs.filter(run => run.status === "verified" || run.status === "simulated" || run.status === "failed");
   const durations = completed.filter(run => run.finished_at).map(run =>
     Math.max(0, (Date.parse(run.finished_at!) - Date.parse(run.created_at)) / 1000));
   return {
@@ -17,5 +17,5 @@ export function mergeEvents(existing: RunEvent[], incoming: RunEvent[]) {
 }
 
 export function isTerminal(run: Run) {
-  return run.status === "verified" || run.status === "failed";
+  return run.status === "verified" || run.status === "simulated" || run.status === "failed";
 }

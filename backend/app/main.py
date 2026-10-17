@@ -7,19 +7,24 @@ from fastapi.responses import JSONResponse
 
 from app.api.health import router as health_router
 from app.api.incidents import router as incidents_router
-from app.config.settings import settings
+from app.config.settings import Settings, settings
 from app.services.runs import RunManager
+from app.services.telemetry import configure_logging
 from app.storage.sqlite import Store
 
 
-def create_app(*, database_path: str | None = None, executor=None) -> FastAPI:
+def create_app(*, database_path: str | None = None, executor=None, config: Settings | None = None) -> FastAPI:
+    config = config or settings
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        store = Store(database_path or settings.database_path)
+        config.validate()
+        configure_logging()
+        store = Store(database_path or config.database_path)
         with store.lease():
             store.initialize()
             app.state.store = store
-            app.state.runs = RunManager(store, executor)
+            app.state.config = config
+            app.state.runs = RunManager(store, executor, config=config)
             try:
                 yield
             finally:
@@ -33,7 +38,7 @@ def create_app(*, database_path: str | None = None, executor=None) -> FastAPI:
     )
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.cors_origins,
+        allow_origins=config.cors_origins,
         allow_credentials=False,
         allow_methods=["GET", "POST"],
         allow_headers=["*"],

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import "./globals.css";
+import { RuntimeProvider } from "@/components/runtime";
 
 export const metadata: Metadata = {
   title: "IncidentZero — Autonomous incident resolution",
@@ -8,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang="en"><body><RuntimeProvider>{children}</RuntimeProvider></body></html>;
 }

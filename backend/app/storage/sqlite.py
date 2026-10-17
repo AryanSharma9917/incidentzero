@@ -14,6 +14,10 @@ class ActiveRunError(RuntimeError):
     pass
 
 
+class DailyRunLimitError(RuntimeError):
+    pass
+
+
 class Store:
     """Short transactions; one connection per operation, safe for worker threads."""
 
@@ -97,7 +101,7 @@ class Store:
             rows = db.execute("SELECT body FROM runs ORDER BY rowid DESC").fetchall()
         return [RunRecord.model_validate_json(row[0]) for row in rows]
 
-    def create_run(self, incident_id: str) -> RunRecord:
+    def create_run(self, incident_id: str, daily_limit: int = 100) -> RunRecord:
         run = RunRecord(id=str(uuid4()), incident_id=incident_id)
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
@@ -105,6 +109,10 @@ class Store:
             if not row:
                 raise KeyError(incident_id)
             incident = IncidentRecord.model_validate_json(row[0])
+            today = utc_now()[:10] + "%"
+            count = db.execute("SELECT COUNT(*) FROM runs WHERE json_extract(body, '$.created_at') LIKE ?", (today,)).fetchone()[0]
+            if count >= daily_limit:
+                raise DailyRunLimitError("Daily demo run limit reached. Try again after midnight UTC.")
             try:
                 db.execute("INSERT INTO runs VALUES (?, ?, ?, ?)", (
                     run.id, incident_id, run.status, run.model_dump_json(),
@@ -137,10 +145,10 @@ class Store:
             if not row:
                 raise KeyError(run_id)
             run = RunRecord.model_validate_json(row[0])
-            if run.status in {"verified", "failed"}:
+            if run.status in {"verified", "simulated", "failed"}:
                 return
             run.status, run.result, run.error = status, result, error
-            terminal = status in {"verified", "failed"}
+            terminal = status in {"verified", "simulated", "failed"}
             if terminal:
                 run.finished_at = utc_now()
             db.execute("UPDATE runs SET status=?, body=? WHERE id=?", (status, run.model_dump_json(), run_id))

@@ -1,68 +1,24 @@
-const workflow = ["Investigate", "Diagnose", "Research", "Repair", "Verify"];
+import Link from "next/link";
+
+const steps = [
+  ["01", "Observe", "Collect pods, events, current and previous logs, and the Deployment configuration."],
+  ["02", "Reason", "NVIDIA Nemotron forms evidence-backed hypotheses through Nebius Token Factory."],
+  ["03", "Research", "Consult focused Tavily sources when the reasoning step needs external evidence."],
+  ["04", "Repair", "Generate a concrete YAML patch and enforce a narrow configuration allow-list."],
+  ["05", "Validate", "Evaluate the candidate in the selected environment, with at most two remediation attempts."],
+];
 
 export default function Home() {
-  return (
-    <main className="min-h-screen overflow-hidden bg-ink text-slate-100">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-7 lg:px-8" aria-label="Primary navigation">
-        <a href="#top" className="font-mono text-sm font-semibold tracking-[0.16em] text-white">INCIDENT<span className="text-signal">ZERO</span></a>
-        <div className="hidden items-center gap-8 text-sm text-slate-400 md:flex">
-          <a className="transition hover:text-white" href="#workflow">How it works</a>
-          <a className="transition hover:text-white" href="#safety">Safety</a>
-          <a href="/dashboard" className="rounded-full border border-slate-700 px-3 py-1 font-mono text-xs text-slate-300">Open workspace →</a>
-        </div>
-      </nav>
-
-      <section id="top" className="relative mx-auto grid max-w-7xl gap-16 px-6 pb-24 pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-32 lg:pt-28">
-        <div className="relative z-10">
-          <p className="mb-7 font-mono text-xs uppercase tracking-[0.25em] text-signal">Autonomous incident-resolution engineer</p>
-          <h1 className="max-w-3xl text-5xl font-semibold leading-[1.04] tracking-[-0.04em] text-white sm:text-7xl">From incident to <span className="text-signal">verified fix.</span></h1>
-          <p className="mt-7 max-w-xl text-lg leading-8 text-slate-400">IncidentZero investigates Kubernetes failures, determines root cause, proposes a controlled repair, and proves it works in a sandbox before a human approves it.</p>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <a href="/dashboard" className="rounded-lg bg-signal px-5 py-3 text-sm font-semibold text-ink">Open incident workspace →</a>
-            <span className="font-mono text-xs text-slate-500">Local Kind sandbox · real backend workflow</span>
-          </div>
-        </div>
-
-        <div className="relative lg:pt-3" aria-label="Agent workflow preview">
-          <div className="absolute -inset-24 bg-[radial-gradient(circle,rgba(94,230,168,0.10),transparent_60%)]" />
-          <div className="relative rounded-2xl border border-slate-800 bg-panel/95 p-5 shadow-panel">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div><p className="font-mono text-xs text-slate-500">WORKFLOW PREVIEW</p><p className="mt-1 text-sm font-medium text-white">payment-api · controlled sandbox</p></div>
-              <span className="rounded-md bg-red-500/10 px-2.5 py-1 font-mono text-xs font-semibold text-red-400">P1</span>
-            </div>
-            <div className="space-y-1 pt-4">
-              {workflow.map((step, index) => (
-                <div key={step} className="flex items-center gap-4 rounded-lg px-3 py-3">
-                  <span className={`grid h-7 w-7 place-items-center rounded-full border font-mono text-xs ${index === 0 ? "border-signal bg-signal/10 text-signal" : "border-slate-700 text-slate-500"}`}>{String(index + 1).padStart(2, "0")}</span>
-                  <span className={index === 0 ? "text-sm text-white" : "text-sm text-slate-500"}>{step}</span>
-                  {index === 0 && <span className="ml-auto font-mono text-[10px] uppercase tracking-wider text-signal">Ready</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="workflow" className="border-y border-slate-800 bg-slate-950/40">
-        <div className="mx-auto grid max-w-7xl gap-px px-6 py-20 md:grid-cols-3 lg:px-8">
-          {[
-            ["01", "Evidence first", "Collect cluster state, events, logs, manifests, and resource signals before drawing conclusions."],
-            ["02", "Reason and repair", "Use NVIDIA Nemotron to form hypotheses and generate a concrete, reviewable remediation."],
-            ["03", "Verify before deploy", "Apply only to an isolated sandbox, evaluate health checks, and retry within strict bounds."],
-          ].map(([number, title, copy]) => (
-            <article key={number} className="border-l border-slate-800 px-6 first:border-l-0 md:px-8">
-              <p className="font-mono text-xs text-signal">{number}</p><h2 className="mt-5 text-xl font-semibold text-white">{title}</h2><p className="mt-3 text-sm leading-6 text-slate-400">{copy}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="safety" className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
-        <div className="flex flex-col justify-between gap-8 rounded-2xl border border-slate-800 bg-panel p-8 md:flex-row md:items-end">
-          <div className="max-w-2xl"><p className="font-mono text-xs uppercase tracking-[0.2em] text-signal">Designed for control</p><h2 className="mt-4 text-3xl font-semibold tracking-tight text-white">Production remains read-only.</h2><p className="mt-4 leading-7 text-slate-400">Agent writes are restricted to a reproducible sandbox. Every proposed change remains visible, bounded, and subject to human approval.</p></div>
-          <p className="font-mono text-xs text-slate-500">Nebius · NVIDIA · LangGraph · Tavily · Kubernetes</p>
-        </div>
-      </section>
-    </main>
-  );
+  return <main className="landing">
+    <nav className="landing-nav" aria-label="Primary navigation"><Link href="/" className="landing-brand">INCIDENT<span>ZERO</span></Link><div><a href="#workflow">Workflow</a><a href="#architecture">Architecture</a><a href="#safety">Safety</a><Link href="/dashboard" className="landing-nav-cta">Open workspace ↗</Link></div></nav>
+    <section className="landing-hero">
+      <div><p className="landing-kicker">For engineers on the incident clock</p><h1>From incident<br />to <span>verified fix.</span></h1><p className="landing-intro">Investigate Kubernetes failures, reason over the evidence, and review a tested remediation before a human approves a production change.</p><div className="landing-actions"><Link href="/dashboard" className="landing-primary">Explore the incident workspace →</Link><a href="#workflow">See the workflow ↓</a></div><p className="landing-footnote">Start with OOMKilled. Follow the evidence through every step.</p></div>
+      <aside className="workflow-preview" aria-label="Illustrative incident workflow"><div className="preview-header"><p>WORKFLOW PREVIEW</p><span>payment-api</span></div><h2>A memory limit.<br />An observable failure.<br />A reviewable change.</h2><div className="preview-code"><span>Observed configuration</span><code>limits.memory: <b>64Mi</b></code><span>Failure evidence</span><code>OOMKilled <b>· exit 137</b></code><span>Candidate for evaluation</span><code>limits.memory: <b>128Mi</b></code></div><p>Illustrative OOM scenario. Actual results come from an executed run; this card is not live telemetry.</p></aside>
+    </section>
+    <section className="problem-section"><p className="landing-kicker">The incident investigation tax</p><h2>The evidence is scattered.<br />The clock keeps running.</h2><div className="problem-grid"><p>Pods restart. Events scroll past. Previous logs disappear. Even a small configuration failure takes time to reconstruct before a fix can be trusted.</p><p>IncidentZero brings the investigation into one traceable workflow: evidence, reasoning, a concrete change, and validation history. You can inspect every decision and take the RCA with you.</p></div></section>
+    <section id="workflow" className="landing-section"><div className="section-heading"><p className="landing-kicker">One bounded investigation</p><h2>Evidence in. Reviewable change out.</h2><p>Reasoning is powered by Nemotron. Research is conditional. Every proposed patch must pass the same deterministic safety policy.</p></div><div className="workflow-steps">{steps.map(([number, name, description]) => <article key={number}><span>{number}</span><h3>{name}</h3><p>{description}</p></article>)}</div></section>
+    <section id="architecture" className="landing-section architecture-section"><div className="section-heading"><p className="landing-kicker">Built to make the boundaries visible</p><h2>A small, inspectable system.</h2><p>A persisted agent workflow connects the operator experience to model reasoning and controlled validation.</p></div><div className="architecture-flow" aria-label="Application architecture"><article><span>Operator experience</span><h3>Next.js workspace</h3><p>Incidents · agent timeline · diff · RCA</p></article><span className="architecture-arrow" aria-hidden="true">↔</span><article><span>Execution & history</span><h3>FastAPI + LangGraph</h3><p>Typed boundaries · SQLite · SSE</p></article><span className="architecture-arrow" aria-hidden="true">↔</span><article><span>Reasoning & validation</span><h3>Nemotron + tools</h3><p>Nebius Token Factory · Tavily · sandbox</p></article></div><div className="execution-modes"><article><h3>Local Kubernetes mode</h3><p>Real Kind evidence, policy-approved patches, rollout, owned-pod checks, logs, and HTTP health validation. Production contexts stay read-only.</p></article><article><h3>Hosted simulation mode</h3><p>Infrastructure evidence and configuration checks are explicitly simulated. Nemotron still generates the diagnosis and patch. Simulated passes are never counted as Kubernetes-verified fixes.</p></article></div></section>
+    <section id="safety" className="landing-section safety-section"><div><p className="landing-kicker">Autonomy with an engineering boundary</p><h2>Trust comes from<br />what you can inspect.</h2><p>Review the collected evidence, model diagnosis, focused sources, exact patch, and named validation checks. Download the report and decide what goes to production.</p><Link href="/dashboard" className="landing-primary">Open the workspace →</Link></div><ul><li><strong>Production remains read-only</strong><span>Local Kubernetes writes target only the fixed demo sandbox.</span></li><li><strong>Configuration changes only</strong><span>Memory, DATABASE_HOST, or readiness probe settings. No model-generated shell commands.</span></li><li><strong>Two remediation attempts</strong><span>Failures end in an explicit terminal state with saved evidence.</span></li><li><strong>Honest execution labels</strong><span>The UI and RCA distinguish simulated validation from real Kubernetes verification.</span></li></ul></section>
+    <footer className="landing-footer"><Link href="/" className="landing-brand">INCIDENT<span>ZERO</span></Link><p>Built with NVIDIA Nemotron, Nebius Token Factory, Tavily, Kubernetes, and LangGraph.</p><a href="https://github.com/rakshitsharma0402/incidentzero" target="_blank" rel="noreferrer">View source ↗</a></footer>
+  </main>;
 }

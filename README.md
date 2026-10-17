@@ -18,6 +18,8 @@ The root [AGENTS.md](AGENTS.md) requires every future change set to update the s
 
 The local product integrates a typed LangGraph investigation and bounded sandbox remediation workflow with SQLite persistence, incident/run REST APIs, SSE events, and a Next.js dashboard. Nebius/Nemotron performs reasoning; Tavily research is conditional. See [local product setup and API behavior](docs/PRODUCT_INTEGRATION.md).
 
+October 24 preparation adds an explicitly labeled infrastructure simulation for hosting without Kubernetes, operator-gated runs, structured workflow logs, polished landing content, standalone frontend packaging, and container/free-tier deployment manifests. **No public URL has been deployed yet.** See [deployment setup, costs, execution labels, and remaining checks](docs/deployment.md).
+
 The earlier OOMKilled workflow was accepted against real local Kind with mocked reasoning. Product integration is verified with deterministic mocked external boundaries; live provider connectivity and UI-to-Kind acceptance remain pending. See the state of play for exact check results.
 
 ## Project structure
@@ -89,7 +91,7 @@ The local sandbox includes healthy, OOMKilled, configuration CrashLoop, and read
 
 ## Safety model
 
-Production-like environments will be read-only. Writes will be restricted to a controlled sandbox with explicit tool allow-lists, timeouts, and bounded remediation attempts.
+Production contexts remain read-only. Local writes target only the controlled Kind sandbox through fixed operations and a bounded remediation loop. Public deployment requires simulation mode, explicit HTTPS CORS origins, an access code for enabled mutations, and a daily run-start limit. Simulation passes are labeled separately and never count as Kubernetes-verified fixes.
 
 ## License
 
