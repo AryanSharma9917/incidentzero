@@ -1,20 +1,20 @@
 # IncidentZero — State of Play
 
-Last updated: October 17, 2026 (Asia/Kolkata)
+Last updated: October 17, 2026 (Asia/Kolkata), sandbox verification implementation checkpoint
 
 This is the canonical live handoff document for developers and coding agents. Update it in every change set that modifies the project. Historical claims must remain truthful: distinguish mocked verification, local live verification, and work that still requires credentials or deployment access.
 
 ## Current checkpoint
 
-The October 17 foundation through October 21 remediation milestones are complete. The last committed checkpoint on `main` is synchronized with `origin/main` at:
+The October 17 foundation through October 21 remediation implementations are complete. `git pull --ff-only origin main` confirmed that the clean local `main` was up to date at:
 
 ```text
-83486ee docs: add state of play and Codex handoff guide
+ec85693 feat: add safe remediation generation and policy validation
 ```
 
-The current uncommitted change set is the October 21 remediation milestone described below. The October 20 research work is already present in the synchronized `83486ee` checkpoint. The remediation work has passed local automated verification but has not been committed or pushed.
+The sandbox verification change set is on `feat/sandbox-verification`, branched from `ec85693`. It implements the October 22 controlled verifier and one bounded workflow retry. The collaborator explicitly authorized editing shared workflow-state contracts and subsequently requested a pull request, authorizing commit and branch push. This handoff is included in that PR change set. No deployment, provider call, or Kubernetes mutation was performed.
 
-The next engineering milestone is October 22: controlled sandbox application, rollout and health checks, PASS/FAIL scoring, and one bounded remediation retry. This is the most important remaining engineering milestone. Writes must remain restricted to the allow-listed `incidentzero-demo` sandbox.
+October 22 remains the next incomplete milestone: the implementation is deterministically tested, but real local OOMKilled end-to-end verification is pending. The current macOS machine has no Docker, Kind, or kubectl on PATH and no `.tools/kubectl`. Provision the local lab and verify the integrated workflow before advancing to October 23. Writes remain restricted to the fixed `kind-incidentzero` context and `incidentzero-demo/payment-api` sandbox target.
 
 ## Product goal
 
@@ -143,6 +143,24 @@ payment-api   1/1 Running   0 restarts
 
 ## Test inventory and last verified results
 
+Current sandbox implementation checkpoint:
+
+- `cd backend && .venv/bin/python -m pytest`: **48 passed**, including mocked verifier operations and mocked end-to-end graph reasoning, first-attempt success, failure then success, exhausted retry, and retry-generation failure.
+- `backend/.venv/bin/python -m pip check`: passed (no broken requirements).
+- Python compileall and `git diff --check`: passed.
+- Local Python 3.13 virtual environment created at ignored `backend/.venv`; pinned backend requirements installed after sandbox DNS failure using approved network access.
+- No real Kubernetes or provider execution. Frontend checks were not rerun because this checkpoint changes only backend code/tests and documentation.
+
+### October 22 implementation details
+
+- Added typed sandbox validation results with named checks, score, and PASS/FAIL.
+- Fixed write target is local `kind-incidentzero`, `incidentzero-demo/payment-api`; context configuration must identify the expected Kind cluster and an HTTPS loopback API server.
+- Revalidate the candidate against the live Deployment and require its exact identity/UID before applying. Commands use fixed argument arrays, explicit context, request deadlines, and bounded rollout timeout.
+- Apply only the policy-approved strategic-merge patch; inspect Deployment-owned pods through ReplicaSet ownership, phase/readiness, restarts, termination evidence, recent logs, and each healthy pod's `/health` through the Kubernetes API proxy.
+- Retain the existing planning-only graph when no verifier is supplied. Explicitly supplying `SandboxVerifier` enables application and verification.
+- The integrated graph permits exactly two remediation attempts. Retry recollects evidence and supplies previous validation checks to Nemotron. History and named timeline checks are retained, and exhausted validation or failed retry generation produces a terminal failure.
+- Health is a point-in-time check, not a sustained soak or stability measurement. Live command compatibility and actual OOM recovery remain unverified here.
+
 Backend tests currently cover:
 
 - health endpoint;
@@ -169,7 +187,7 @@ Backend tests currently cover:
 - correct candidates for all three demo scenarios;
 - rejection and bounded repair of forbidden image changes.
 
-Last complete verification:
+Historical full-stack verification before this checkpoint:
 
 ```text
 pytest:                    29 passed
@@ -187,6 +205,8 @@ git diff --check:          passed
 ```
 
 ## Environment and operational notes
+
+The following Linux/Kind environment notes describe the earlier collaborator machine, not the current macOS checkout at `/Users/rakshitsharma/Developer/Project/incidentzero`. Its existing Kind cluster and downloaded kubectl are not available on this machine. Current interpreter: Python 3.13.16. Docker, Kind, and kubectl are absent from PATH; no local cluster verification was possible in this session.
 
 - Python: 3.12.3 during verification.
 - PyYAML is now a runtime dependency because remediation candidates are parsed and policy-validated before they can enter sandbox verification.
@@ -235,6 +255,8 @@ The canonical sequence and acceptance criteria are expanded in `docs/MASTER_BUIL
 
 ### Next: October 22 — sandbox verification
 
+The implementation below is now present and mocked-tested. **Exact next task:** provision or use an authorized local Docker/Kind lab, induce the OOMKilled scenario, invoke `build_diagnosis_graph(..., sandbox_verifier=SandboxVerifier(...))`, and verify real rollout/pod/log/HTTP checks and terminal status. Reset the lab afterward. Use explicitly labeled mocked reasoning if credentials/quota authorization remain unavailable; only run live Nebius/Tavily with separate quota authorization. Record actual evidence and address any live failures before calling October 22 complete.
+
 - Validate the selected Kubernetes context and allow writes only to `incidentzero-demo`.
 - Apply only the already policy-approved strategic-merge patch using argument arrays and fixed operations.
 - Wait for Deployment rollout with a hard timeout.
@@ -256,7 +278,7 @@ Exit criterion: broken workload → diagnosis → safe patch → sandbox-only ap
 
 - Incident/run database persistence.
 - Incident, run, or SSE APIs.
-- Automated sandbox verification and retry loop.
+- Live verification of the implemented sandbox verifier and retry loop.
 - RCA generation or Markdown export.
 - Dashboard, incident details, live timeline, diff viewer, or validation UI.
 - Public deployment.
@@ -265,7 +287,7 @@ Exit criterion: broken workload → diagnosis → safe patch → sandbox-only ap
 
 ## Judging-criteria alignment
 
-- **Technological implementation:** the current product has real Kubernetes evidence collection, typed Nebius/Nemotron and Tavily integrations, tested LangGraph diagnosis/research/synthesis paths, and deterministic YAML remediation policy enforcement. Live credential verification and the October 22 sandbox validation loop remain necessary to demonstrate the full autonomous cycle.
+- **Technological implementation:** the current product has real Kubernetes evidence collection, typed Nebius/Nemotron and Tavily integrations, tested LangGraph diagnosis/research/synthesis paths, deterministic YAML remediation policy enforcement, and a mocked-tested bounded sandbox validation loop. Live credential and integrated sandbox verification remain necessary to demonstrate the full autonomous cycle.
 - **Design:** the frontend currently provides a polished foundation, not yet the complete incident workflow. The incident detail, timeline, evidence, diagnosis, diff, validation, and RCA experience remains scheduled for October 23–24.
 - **Potential impact:** the three reproducible failure modes and read-only production/sandbox-write boundary make the operator use case concrete. Verified remediation and the final demo narrative remain essential proof.
 - **Quality of the idea:** evidence-driven Nemotron reasoning, conditional research, and bounded sandbox validation are the core non-obvious differentiators. Avoid presenting mocked outputs as live model results; the final demo must make each real system boundary visible.
@@ -318,6 +340,8 @@ a6d5da2 Initial commit
 
 ## State change log
 
+- October 17, 2026: collaborator requested a PR for the sandbox verification checkpoint; prepared the change set for commit and publication from `feat/sandbox-verification`. Live Kubernetes acceptance remains pending and is called out in the PR scope.
+- October 17, 2026: pulled current main and created `feat/sandbox-verification`; implemented fixed local sandbox targeting, live patch revalidation, rollout and owned-pod/log/HTTP checks, scores, validation history, and a maximum of two remediation attempts. All 48 backend tests passed with mocked external boundaries. Live Kubernetes verification remains blocked by missing local tooling; no provider quota consumed. Next: live local October 22 OOM workflow verification.
 - October 17, 2026: completed and locally verified structured remediation generation, strict YAML and target policies, scenario-appropriate patches for all three demo failures, and bounded repair of rejected candidates; Kubernetes application remains intentionally pending.
 - October 17, 2026: completed and locally verified conditional Tavily routing, bounded focused research, cross-query source deduplication, final structured Nemotron synthesis, and citation allow-list repair; live provider verification remains pending.
 - October 17, 2026: completed and locally verified typed incident intake, LangGraph context/diagnosis flow, strict Nemotron output validation, and one bounded repair attempt; live provider verification remains pending.

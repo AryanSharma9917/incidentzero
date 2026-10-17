@@ -10,6 +10,8 @@ class WorkflowStatus(StrEnum):
     DIAGNOSED = "diagnosed"
     SYNTHESIZED = "synthesized"
     REMEDIATION_READY = "remediation_ready"
+    VERIFIED = "verified"
+    RETRYING = "retrying"
     FAILED = "failed"
 
 

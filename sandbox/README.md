@@ -41,3 +41,22 @@ Expected evidence:
 | `readiness` | Container remains running but unready; probe event reports HTTP 404 for `/healthz` |
 
 The workload runs as numeric UID 10001, drops Linux capabilities, disables privilege escalation, uses a read-only root filesystem, and is isolated in the `incidentzero-demo` namespace.
+
+## Workflow verification
+
+The backend graph remains planning-only by default. To explicitly enable controlled application, supply a verifier when building it:
+
+```python
+from app.services.sandbox import SandboxVerifier
+
+graph = build_diagnosis_graph(
+    collector, diagnosis_agent, research_agent, remediation_agent,
+    sandbox_verifier=SandboxVerifier(kubectl_binary="kubectl"),
+)
+```
+
+The verifier requires the `kind-incidentzero` context, a cluster with that name and an HTTPS loopback API endpoint, and the exact `incidentzero-demo/payment-api` target. It revalidates the patch against the live Deployment, applies it with explicit context and namespace, and bounds rollout to 90 seconds by default. It checks owned pods, readiness, zero restarts/terminations, recent logs, and `/health` via the Kubernetes API proxy. This is a point-in-time health check.
+
+Results contain named checks and a score. Every check must pass; a high partial score is still failure. Failed verification permits one new remediation candidate with refreshed evidence and previous validation results, for a maximum of two applications. Model-output repair attempts are separately bounded to two per candidate. `validation_history` and timeline checks retain both attempts. Successful validation ends at `verified`; RCA generation is a later milestone.
+
+These operations have deterministic mocked coverage. The integrated verifier still requires a real local OOMKilled run; do not describe mocked reasoning or mocked Kubernetes responses as live verification.

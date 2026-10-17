@@ -8,6 +8,7 @@ from app.models.diagnosis import FinalDiagnosis
 from app.models.incidents import NormalizedIncident
 from app.models.kubernetes import KubernetesContext
 from app.models.remediation import PatchValidation, RemediationCandidate
+from app.models.validation import SandboxValidation
 from app.services.remediation import RemediationPolicyValidator
 
 
@@ -31,6 +32,7 @@ class RemediationAgent:
         incident: NormalizedIncident,
         context: KubernetesContext,
         diagnosis: FinalDiagnosis,
+        previous_validation: SandboxValidation | None = None,
     ) -> tuple[RemediationCandidate, PatchValidation]:
         deployment = context.deployment
         payload = {
@@ -38,6 +40,9 @@ class RemediationAgent:
             "incident": incident.model_dump(mode="json"),
             "final_diagnosis": diagnosis.model_dump(mode="json"),
             "current_deployment": deployment,
+            "previous_validation": (
+                previous_validation.model_dump(mode="json") if previous_validation else None
+            ),
         }
         messages: list[ChatMessage] = [
             {

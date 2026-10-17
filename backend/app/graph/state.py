@@ -12,6 +12,7 @@ from app.models.incidents import IncidentInput, NormalizedIncident
 from app.models.integrations import ResearchEvidence
 from app.models.kubernetes import KubernetesContext
 from app.models.remediation import PatchValidation, RemediationCandidate
+from app.models.validation import SandboxValidation
 
 
 class IncidentState(TypedDict, total=False):
@@ -40,6 +41,7 @@ class IncidentState(TypedDict, total=False):
     validation_score: int
     validation_passed: bool
     iteration_count: int
+    validation_history: list[SandboxValidation]
     final_report: str
     status: WorkflowStatus
     timeline_events: Annotated[list[TimelineEvent], operator.add]

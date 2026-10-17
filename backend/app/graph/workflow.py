@@ -1,3 +1,4 @@
+import asyncio
 from uuid import uuid4
 
 from langgraph.graph import END, START, StateGraph
@@ -5,10 +6,14 @@ from langgraph.graph import END, START, StateGraph
 from app.agents.diagnosis import DiagnosisAgent
 from app.agents.intake import normalize_incident
 from app.agents.research import ResearchAgent
-from app.agents.remediation import RemediationAgent
+from app.agents.remediation import RemediationAgent, RemediationGenerationError
 from app.graph.state import IncidentState
-from app.integrations.kubernetes import KubernetesContextCollector
+from app.integrations.errors import IntegrationError
+from app.integrations.kubernetes import KubernetesCollectionError, KubernetesContextCollector
 from app.models.diagnosis import TimelineEvent, WorkflowStatus
+from app.services.sandbox import SandboxVerifier
+
+MAX_REMEDIATION_ATTEMPTS = 2
 
 
 def build_diagnosis_graph(
@@ -16,8 +21,9 @@ def build_diagnosis_graph(
     diagnosis_agent: DiagnosisAgent,
     research_agent: ResearchAgent,
     remediation_agent: RemediationAgent,
+    sandbox_verifier: SandboxVerifier | None = None,
 ):
-    """Compile the evidence-to-remediation workflow; it never mutates the cluster."""
+    """Compile planning, with sandbox writes only when an explicit verifier is supplied."""
 
     async def intake(state: IncidentState) -> IncidentState:
         incident_id = state.get("incident_id") or str(uuid4())
@@ -27,6 +33,8 @@ def build_diagnosis_graph(
             "incident_id": incident_id,
             "run_id": run_id,
             "incident": incident,
+            "iteration_count": 0,
+            "validation_history": [],
             "status": WorkflowStatus.INVESTIGATING,
             "timeline_events": [
                 TimelineEvent(stage="intake", status="complete", message="Incident normalized")
@@ -105,14 +113,23 @@ def build_diagnosis_graph(
         }
 
     async def remediate(state: IncidentState) -> IncidentState:
+        history = state.get("validation_history", [])
+        context = state["cluster_context"]
+        if history:
+            context = await asyncio.to_thread(
+                collector.collect, state["incident"].service, state["incident"].namespace
+            )
         candidate, validation = await remediation_agent.generate(
             state["incident"],
-            state["cluster_context"],
+            context,
             state["final_diagnosis"],
+            **({"previous_validation": history[-1]} if history else {}),
         )
         target = candidate.affected_resource
         return {
             "remediation": candidate,
+            "cluster_context": context,
+            "iteration_count": state.get("iteration_count", 0) + 1,
             "candidate_validation": validation,
             "remediation_plan": candidate.summary,
             "patch": candidate.patch_yaml,
@@ -131,13 +148,63 @@ def build_diagnosis_graph(
             ],
         }
 
+    async def validate(state: IncidentState) -> IncidentState:
+        assert sandbox_verifier is not None
+        result = await asyncio.to_thread(
+            sandbox_verifier.validate,
+            state["remediation"], state["incident"], state["cluster_context"],
+        )
+        exhausted = state["iteration_count"] >= MAX_REMEDIATION_ATTEMPTS
+        return {
+            "validation_history": [*state.get("validation_history", []), result],
+            "validation_score": result.score,
+            "validation_passed": result.passed,
+            "status": (
+                WorkflowStatus.VERIFIED if result.passed
+                else WorkflowStatus.FAILED if exhausted else WorkflowStatus.RETRYING
+            ),
+            "errors": ["Sandbox validation failed after two attempts"]
+            if not result.passed and exhausted else [],
+            "timeline_events": [
+                TimelineEvent(stage="validation.started", status="started",
+                              message=f"Validation attempt {state['iteration_count']}"),
+                *[TimelineEvent(stage="validation.check", status="pass" if c.passed else "fail",
+                                message=f"{c.name}: {c.message}") for c in result.checks],
+                TimelineEvent(
+                    stage="validation.completed" if result.passed else "validation.failed",
+                    status="pass" if result.passed else "fail",
+                    message=f"Attempt {state['iteration_count']}: score {result.score}/100",
+                ),
+            ],
+        }
+
+    async def guarded_remediate(state: IncidentState) -> IncidentState:
+        try:
+            return await remediate(state)
+        except (RemediationGenerationError, KubernetesCollectionError, IntegrationError, ValueError):
+            if sandbox_verifier is None:
+                raise
+            return {
+                "status": WorkflowStatus.FAILED,
+                "errors": ["Remediation generation or retry evidence collection failed"],
+                "timeline_events": [TimelineEvent(
+                    stage="remediation.failed", status="failed",
+                    message="Cannot safely generate another sandbox candidate.",
+                )],
+            }
+
+    def validation_route(state: IncidentState) -> str:
+        if state["validation_passed"] or state["iteration_count"] >= MAX_REMEDIATION_ATTEMPTS:
+            return "end"
+        return "retry"
+
     graph = StateGraph(IncidentState)
     graph.add_node("intake", intake)
     graph.add_node("collect_kubernetes_context", collect_context)
     graph.add_node("diagnose_with_nemotron", diagnose)
     graph.add_node("research_with_tavily", research)
     graph.add_node("synthesize_diagnosis", synthesize)
-    graph.add_node("generate_remediation", remediate)
+    graph.add_node("generate_remediation", guarded_remediate)
     graph.add_edge(START, "intake")
     graph.add_edge("intake", "collect_kubernetes_context")
     graph.add_edge("collect_kubernetes_context", "diagnose_with_nemotron")
@@ -148,5 +215,17 @@ def build_diagnosis_graph(
     )
     graph.add_edge("research_with_tavily", "synthesize_diagnosis")
     graph.add_edge("synthesize_diagnosis", "generate_remediation")
-    graph.add_edge("generate_remediation", END)
+    if sandbox_verifier is None:
+        graph.add_edge("generate_remediation", END)
+    else:
+        graph.add_node("validate_sandbox", validate)
+        graph.add_conditional_edges(
+            "generate_remediation",
+            lambda state: "end" if state["status"] == WorkflowStatus.FAILED else "validate",
+            {"end": END, "validate": "validate_sandbox"},
+        )
+        graph.add_conditional_edges(
+            "validate_sandbox", validation_route,
+            {"end": END, "retry": "generate_remediation"},
+        )
     return graph.compile()
