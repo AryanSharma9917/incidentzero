@@ -1,12 +1,12 @@
 # IncidentZero — State of Play
 
-Last updated: October 17, 2026 (Asia/Kolkata), October 24 branch publication preparation
+Last updated: October 17, 2026 (Asia/Kolkata), October 24 branch pushed; PR authentication pending
 
 This is the canonical live handoff document for developers and coding agents. Update it in every change set that modifies the project. Historical claims must remain truthful: distinguish mocked verification, local live verification, and work that still requires credentials or deployment access.
 
 ## Current checkpoint
 
-The user explicitly moved scope to the October 24 deployment-and-polish milestone while October 23 live product acceptance remains pending. Local `main` now contains merge commit `a7d7d1d` (PR #2, product integration). Current work is isolated on `feat/deployment-polish`, based on that clean merged checkpoint; the user has now requested committing/pushing this change set and opening a PR. Publication is being prepared; no deployment or provider quota is included in that request.
+The user explicitly moved scope to the October 24 deployment-and-polish milestone while October 23 live product acceptance remains pending. Local `main` now contains merge commit `a7d7d1d` (PR #2, product integration). Current work is isolated on `feat/deployment-polish`, based on that clean merged checkpoint; implementation commit `a0a0066` is pushed to `origin/feat/deployment-polish`. PR creation against `main` is pending authenticated GitHub API access: no default API credential/CLI is available, and the GitHub plugin is unconnected. The exact title/description is saved in `docs/PR_DEPLOYMENT_POLISH.md`. A documentation follow-up records the publication outcome. No deployment or provider quota was used.
 
 October 24 implementation is prepared locally: a polished landing page; typed runtime metadata and explicit hosted simulation mode; real Nemotron/Tavily reasoning preserved; separate `simulated` terminal status that cannot inflate Kubernetes-verified metrics; mode/ephemeral-storage notices and access-code controls; production environment/CORS validation; run pause and daily-start bound; structured operational logs; standalone Next.js packaging; non-root Dockerfiles/loopback Compose setup; an optional Render free-tier blueprint; and a read-only public smoke-check script. See `docs/deployment.md` for exact contracts, source references, and deployment steps.
 
@@ -175,7 +175,7 @@ Current October 24 local checkpoint:
 - Visually inspected the generated mobile landing screenshot. Browser binaries and screenshots remain temporary/ignored, not submission assets.
 - `compose.yaml` and `render.yaml` parsed with PyYAML; verified both optional Render plans are explicitly `free`, no paid disks are declared, and auto-deploy is the string `off`. This is local manifest inspection, not host-side blueprint acceptance.
 - `python3 deploy/check_public.py --help`: passed. Real HTTPS smoke execution remains pending actual URLs. Docker image builds/Compose smoke were **not run** because Docker is absent.
-- `git diff --check`: passed. Branch `feat/deployment-polish`, base `a7d7d1d`; changes remain uncommitted/unpushed. No deployment, paid resources, provider quota, or live Kubernetes mutation.
+- `git diff --check`: passed. Branch `feat/deployment-polish`, base `a7d7d1d`; implementation commit `a0a0066` is pushed to origin at the user’s subsequent request; this documentation follow-up records the outcome. PR creation remains authentication-blocked. No deployment, paid resources, provider quota, or live Kubernetes mutation.
 - Existing npm 11.19.0 optional-sharp `npm ci` issue remains; deployment preparation uses the previously verified `npm install` path. Keep browser dev-server checks and production builds sequential to avoid shared `.next` output collisions.
 
 Files created/changed for October 24:
@@ -406,6 +406,8 @@ a6d5da2 Initial commit
 ```
 
 ## State change log
+
+- October 17, 2026: committed October 24 preparation as `a0a0066` and successfully pushed `feat/deployment-polish` to origin. GitHub returned the PR creation URL, but no PR was created because API authentication is absent. Saved title/description in `docs/PR_DEPLOYMENT_POLISH.md`; user can use the GitHub PR form or connect authenticated GitHub access. Actual hosting/live acceptance work remains unchanged and pending.
 
 - October 17, 2026: user requested pushing the October 24 PR. Reviewed branch/diff and existing verification, and prepared `docs/PR_DEPLOYMENT_POLISH.md`. Default GitHub API credentials and CLI are unavailable; plugin discovery confirms GitHub remains unconnected. Commit/SSH push can proceed; automated PR creation requires authenticated GitHub API access.
 
