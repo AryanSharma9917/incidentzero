@@ -8,7 +8,7 @@ export default function Home() {
         <div className="hidden items-center gap-8 text-sm text-slate-400 md:flex">
           <a className="transition hover:text-white" href="#workflow">How it works</a>
           <a className="transition hover:text-white" href="#safety">Safety</a>
-          <span className="rounded-full border border-slate-700 px-3 py-1 font-mono text-xs text-slate-300">Foundation build</span>
+          <a href="/dashboard" className="rounded-full border border-slate-700 px-3 py-1 font-mono text-xs text-slate-300">Open workspace →</a>
         </div>
       </nav>
 
@@ -18,8 +18,8 @@ export default function Home() {
           <h1 className="max-w-3xl text-5xl font-semibold leading-[1.04] tracking-[-0.04em] text-white sm:text-7xl">From incident to <span className="text-signal">verified fix.</span></h1>
           <p className="mt-7 max-w-xl text-lg leading-8 text-slate-400">IncidentZero investigates Kubernetes failures, determines root cause, proposes a controlled repair, and proves it works in a sandbox before a human approves it.</p>
           <div className="mt-10 flex flex-wrap items-center gap-4">
-            <button disabled className="cursor-not-allowed rounded-lg bg-signal px-5 py-3 text-sm font-semibold text-ink opacity-70" title="Available in a later phase">Run demo incident</button>
-            <span className="font-mono text-xs text-slate-500">Demo workflow arrives in Phase 2</span>
+            <a href="/dashboard" className="rounded-lg bg-signal px-5 py-3 text-sm font-semibold text-ink">Open incident workspace →</a>
+            <span className="font-mono text-xs text-slate-500">Local Kind sandbox · real backend workflow</span>
           </div>
         </div>
 
@@ -27,7 +27,7 @@ export default function Home() {
           <div className="absolute -inset-24 bg-[radial-gradient(circle,rgba(94,230,168,0.10),transparent_60%)]" />
           <div className="relative rounded-2xl border border-slate-800 bg-panel/95 p-5 shadow-panel">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div><p className="font-mono text-xs text-slate-500">INC-2026-0042</p><p className="mt-1 text-sm font-medium text-white">payment-api · demo-production</p></div>
+              <div><p className="font-mono text-xs text-slate-500">WORKFLOW PREVIEW</p><p className="mt-1 text-sm font-medium text-white">payment-api · controlled sandbox</p></div>
               <span className="rounded-md bg-red-500/10 px-2.5 py-1 font-mono text-xs font-semibold text-red-400">P1</span>
             </div>
             <div className="space-y-1 pt-4">

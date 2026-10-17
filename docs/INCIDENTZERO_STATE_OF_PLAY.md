@@ -1,22 +1,20 @@
 # IncidentZero — State of Play
 
-Last updated: October 17, 2026 (Asia/Kolkata), live sandbox acceptance checkpoint
+Last updated: October 17, 2026 (Asia/Kolkata), product-integration branch published; PR authentication pending
 
 This is the canonical live handoff document for developers and coding agents. Update it in every change set that modifies the project. Historical claims must remain truthful: distinguish mocked verification, local live verification, and work that still requires credentials or deployment access.
 
 ## Current checkpoint
 
-The October 17 foundation through October 22 sandbox-verification milestones are complete. Local `main` is synchronized with `origin/main` at the merged sandbox-verification checkpoint:
+The foundation through sandbox-verification implementation is complete. Product integration (the October 23 milestone) is now implemented on local branch `feat/product-integration`, based on `8a5ef55` (`fix: complete live sandbox workflow verification`). The implementation is committed as `f2439e5` (`feat: integrate persisted incident runs and live product workspace`) and pushed to `origin/feat/product-integration`. The user requested a PR against `main`; creation is blocked because GitHub CLI/default API credentials are absent and the GitHub plugin is not installed/connected. SSH push succeeded. The ready-to-use PR title/description is in `docs/PR_PRODUCT_INTEGRATION.md`. A follow-up documentation commit records this publication outcome. No deployment or provider-quota use occurred.
 
-```text
-05a6742 Merge pull request #1 from rakshitsharma0402/feat/sandbox-verification
-```
+The new product includes SQLite incident/run persistence, background graph execution, REST APIs, resumable SSE, safe local demo preparation, evidence-based RCA/Markdown export, and Dashboard, Incidents, Agent Runs, and detail screens. Metrics come only from persisted demo history. One active run is enforced transactionally; a file lease prevents a second API process from recovering another process's active database. Restart recovery makes interrupted runs terminal failures.
 
-The current uncommitted change set fixes issues found during live Linux/Kind acceptance: Kubernetes Service-proxy endpoint propagation was unreliable, so `/health` now uses a fixed non-shell request inside the already ownership-verified pod; transient health execution is retried at most three times; and LangGraph verification routes avoid sync executor paths that stall under Python 3.12. One deterministic test was added.
+Local verification in this macOS checkout uses Python 3.13.16 and Node 24.21.0. The backend suite has 66 passing tests; frontend lint, typecheck, four deterministic domain tests, production build, and two Chrome browser smoke tests passed. Final commands and verification boundaries are recorded below. External boundaries in the integration tests are mocked. No live Nebius/Tavily requests or live Kubernetes mutations were performed here; kubectl and Docker are unavailable on PATH.
 
-The merged implementation was live-verified against the local `kind-incidentzero` cluster using mocked Nemotron responses and real Kubernetes evidence collection, patch application, rollout, owned-pod inspection, logs, and `/health`. The starting pod showed `OOMKilled`, exit code 137, and one restart. The workflow finished `verified` on its first remediation attempt with score 100/100. The lab was reset afterward to a healthy baseline (`1/1 Running`, zero restarts).
+The preceding Linux checkpoint live-verified real Kubernetes evidence collection, patch application, rollout, pod inspection, logs, and `/health` with **mocked Nemotron responses**. Its OOMKilled/137/restart-1 workload reached `verified`, 100/100, on attempt one and was reset healthy. That is historical acceptance of the core graph, not live acceptance of the new UI/API integration.
 
-The next milestone is October 23 product integration: SQLite persistence, incident/run APIs, SSE events, terminal error handling, and the real dashboard/run-detail experience. Live Nebius and Tavily calls remain pending credentials and explicit quota use; do not describe the mocked reasoning portion of the accepted sandbox run as a live model call.
+The exact next task is UI → persisted API → live Nemotron → local Kind OOMKilled acceptance on a machine with the sandbox/tools and deliberately authorized provider quota. Verify terminal success, streamed evidence, diff, validation, RCA download, and reset the lab healthy. Conditional Tavily access also remains credential-dependent. After that checkpoint, proceed to October 24 deployment and polish; the engineering deadline is October 25, 2026.
 
 ## Product goal
 
@@ -143,9 +141,39 @@ payment-api   1/1 Running   0 restarts
 - Deterministic tests validate logically correct OOMKilled, configuration crash-loop, and readiness candidates and reject image mutation.
 - No live Nemotron generation was run because credentials are unavailable; no quota was consumed.
 
+### Product integration (October 23 implementation)
+
+- SQLite storage with per-operation transactions/connections, durable run snapshots, incident status, ordered events, atomic shared-sandbox exclusion, terminal events committed with terminal status, restart recovery, and a single-process database lease.
+- Typed incident/run/event API contracts; demo creation, incident history/details, background run start, run history/details, event history, SSE replay with `Last-Event-ID`, and RCA download.
+- Worker-thread execution keeps synchronous kubectl operations outside the API event loop. Existing real Nemotron reasoning, conditional Tavily routing, strict remediation policy, and two-attempt bound are preserved.
+- Demo setup uses only fixed local Kind arguments and repository scenario paths, reuses the verifier's context guard, and waits for old pods to disappear and new fault evidence to appear. Missing Nebius configuration fails before sandbox setup.
+- Sanitized provider/Kubernetes/timeout errors, HTTP 404/409/422/503 responses, terminal run/error events, stream storage errors, and UI polling fallback prevent silent endless loading.
+- Evidence-derived Markdown RCA and field-scoped Deployment diff; no additional model call or fabricated impact.
+- Dashboard, incident and run histories/details, three scenario controls, real stored metrics, timeline, evidence/logs, diagnosis/confidence, source panel, diff, checks, final status, and report download. Landing-page CTA opens the workspace.
+- Added `docs/PRODUCT_INTEGRATION.md` for local setup, API contracts, safety, lifecycle, and verification limits; refreshed the README and environment template.
+
 ## Test inventory and last verified results
 
-Current live-acceptance checkpoint:
+Current product-integration checkpoint:
+
+- `backend/.venv/bin/python -m pytest backend -q`: **66 passed** (all external provider/Kubernetes operations mocked).
+- `backend/.venv/bin/python -m pip check`: passed; Python compileall of application and tests: passed.
+- `cd frontend && npm run lint && npm run typecheck && npm test && npm run build`: passed, including **4 deterministic frontend tests** and Next.js 15.5.28 production build.
+- `cd frontend && PLAYWRIGHT_CHROMIUM_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' npm run test:browser`: **2 passed**, using the real UI, HTTP API, worker, SQLite, SSE/report routes, and an explicitly mocked test executor. Verified OOM click-through, persisted reload, mobile navigation, terminal failure while SSE is blocked, and sanitized errors. This is Chrome local browser verification, not cross-browser verification or live model/Kind acceptance.
+- Visually inspected the browser-generated run-detail screenshot; screenshot and browser outputs remain Git-ignored test artifacts.
+- `git diff --check`: passed. Implementation commit `f2439e5` is published on `origin/feat/product-integration`, based on `8a5ef55`; a documentation follow-up records the publication outcome.
+- `npm install --no-audit --no-fund` succeeded with network permission. **Known pre-existing tooling problem:** `npm ci` on local npm 11.19.0 fails with `Missing: sharp@ from lock file`; the existing Next sharp override/optional-peer resolution is incompatible with clean-install validation in this environment. A direct optional-sharp attempt did not fix it and was reverted. Use the verified `npm install` setup for now; do not claim `npm ci` passed.
+- No live provider calls, provider quota, local Kind operations, or deployment. The implementation was committed/pushed at the user’s subsequent request; no PR has been created yet.
+
+Files created/changed for this checkpoint:
+
+- Backend: new `app/models/runs.py`, `app/storage/{__init__,sqlite}.py`, `app/api/incidents.py`, `app/services/{demo,reports,runs}.py`; updated `app/main.py`, `app/config/settings.py`, and the shared local-context guard in `app/services/sandbox.py`.
+- Tests: new `backend/tests/test_product_integration.py`, `backend/tests/test_demo_controller.py`, and isolated `backend/tests/ui_fixture.py`; new `frontend/tests/domain.test.ts`, `frontend/tests/browser/workflow.spec.ts`, and `frontend/playwright.config.ts`.
+- Frontend: new `app/dashboard/page.tsx`, `app/incidents/page.tsx`, `app/incidents/[id]/page.tsx`, `app/runs/page.tsx`, `app/runs/[id]/page.tsx`, `components/{overview,workspace}.tsx`, `lib/{api,domain}.ts`; updated landing page, global CSS, package manifests/lockfile, and TypeScript test-import configuration.
+- Documentation/config: new `docs/PRODUCT_INTEGRATION.md`; updated this handoff, `README.md`, `.env.example`, and `.gitignore` (browser artifacts).
+- Recommended Conventional Commit: `feat: integrate persisted incident runs and live product workspace`.
+
+Historical core sandbox live-acceptance checkpoint (before product integration):
 
 - `backend/.venv/bin/pytest backend -q`: **49 passed**, including mocked verifier operations, endpoint-propagation retry, and graph first-attempt success, failure then success, exhausted retry, and retry-generation failure.
 - `backend/.venv/bin/python -m pip check`: passed (no broken requirements).
@@ -210,9 +238,10 @@ git diff --check:          passed
 
 ## Environment and operational notes
 
-The live acceptance ran in the Linux workspace at `/home/aryan/Documents/Projects/incidentzero` using Python 3.12.3, the existing local Kind cluster, and the ignored checksum-verified `.tools/kubectl`. The preceding macOS collaborator environment did not have those local tools; treat machine-specific availability as non-portable.
+The **preceding core sandbox** live acceptance ran in the Linux workspace at `/home/aryan/Documents/Projects/incidentzero` using Python 3.12.3, the existing local Kind cluster, and the ignored checksum-verified `.tools/kubectl`. The preceding macOS collaborator environment did not have those local tools; treat machine-specific availability as non-portable.
 
-- Python: 3.12.3 during verification.
+- Product-integration checkout: macOS, Python 3.13.16, Node 24.21.0, npm 11.19.0; no kubectl or Docker on PATH. Browser tests used existing Google Chrome.
+- Python: 3.12.3 during historical Linux verification.
 - PyYAML is now a runtime dependency because remediation candidates are parsed and policy-validated before they can enter sandbox verification.
 - Node.js: 22.23.2 during foundation verification.
 - Kind: development build reporting `v0.32.0-alpha+9145d421e0d4f7`; it created a Kubernetes 1.35.0 node locally.
@@ -233,6 +262,8 @@ API_HOST
 API_PORT
 CORS_ORIGINS
 NEXT_PUBLIC_API_URL
+DATABASE_PATH
+KUBECTL_BIN
 NEBIUS_API_KEY
 NEBIUS_BASE_URL
 NEBIUS_MODEL
@@ -257,39 +288,34 @@ Never commit `.env` or credentials.
 
 The canonical sequence and acceptance criteria are expanded in `docs/MASTER_BUILD_PLAN.md`.
 
-### Next: October 23 — product integration
+### Next: October 23 — live product acceptance
 
-- Add SQLite persistence for incidents, runs, statuses, timeline events, and final results.
-- Implement the required incident/run REST endpoints and SSE stream with explicit terminal/error events.
-- Wire graph execution into persisted background runs without blocking request handling.
-- Expose real demo controls for OOMKilled, CrashLoopBackOff, and readiness failure.
-- Build Dashboard, Incidents, Agent Runs, and incident/run detail views from persisted backend data.
-- Display incident evidence, streamed agent timeline, diagnosis confidence, research sources, remediation diff, validation checks, final status, and RCA/export surface.
-- Derive all metrics from stored demo history; do not fabricate production or customer data.
-- Add deterministic API, persistence, SSE, frontend, and terminal-failure tests.
+Implementation is locally test-verified with mocked external boundaries. Before advancing to deployment:
 
-Exit criterion: a user can start a demo incident from the UI and watch the real persisted backend workflow reach a clear terminal state with evidence, patch, and validation results.
+- On a prepared Kind machine, deliberately authorize/configure provider quota and run OOMKilled from the UI through the persisted API and real Nemotron reasoning.
+- Verify SSE timeline, evidence, diagnosis, diff, checks, terminal status, RCA export, and persisted reload behavior, then reset the sandbox healthy.
+- Verify Tavily connectivity and an actual conditional-research run when credentials/quota are authorized; do not force research on every run.
+- Record exact live evidence here. Do not reuse mocked browser results as live provider or cluster proof.
+
+Exit criterion: the product UI drives the real persisted workflow to a clear terminal state with attributable evidence and sandbox verification.
 
 ### Later milestones
 
 - October 24: landing-page polish, deployment, CORS/environment validation, public URL, production logging, cross-browser check.
 - October 25: feature freeze, five golden-path runs, bug fixes, full documentation, screenshots, architecture diagram, demo video, DEV.to article, Devpost submission.
 
-## Explicitly not implemented yet
+## Explicitly pending
 
-- Incident/run database persistence.
-- Incident, run, or SSE APIs.
-- RCA generation or Markdown export.
-- Dashboard, incident details, live timeline, diff viewer, or validation UI.
-- Public deployment.
-- Live Nebius or Tavily credential verification.
-- Submission screenshots, video, DEV.to article, or Devpost entry.
+- Live provider credential/connectivity verification and UI/API-to-Kind acceptance of product integration.
+- Public deployment, hosted demo access model, and October 24 production logging/polish.
+- Final five-run golden-path stability acceptance and submission screenshots, video, DEV.to article, and Devpost entry.
+- Sustained health/soak measurements; current sandbox verification remains point-in-time.
 
 ## Judging-criteria alignment
 
 - **Technological implementation:** the current product has real Kubernetes evidence collection, typed Nebius/Nemotron and Tavily integrations, tested LangGraph diagnosis/research/synthesis paths, deterministic YAML remediation policy enforcement, and a live-accepted bounded sandbox validation loop. Live provider credentials remain necessary to demonstrate Nemotron/Tavily reasoning rather than mocked reasoning.
-- **Design:** the frontend currently provides a polished foundation, not yet the complete incident workflow. The incident detail, timeline, evidence, diagnosis, diff, validation, and RCA experience remains scheduled for October 23–24.
-- **Potential impact:** the three reproducible failure modes, read-only production boundary, and verified local OOM recovery make the operator use case concrete. Persisted product integration and the final demo narrative remain essential proof.
+- **Design:** the frontend now implements the persisted incident workflow, timeline, evidence, diagnosis, diff, validation, and RCA experience. Public deployment and live end-to-end product acceptance remain pending.
+- **Potential impact:** the three reproducible failure modes, read-only production boundary, and verified local OOM recovery make the operator use case concrete. Live acceptance of the persisted product integration and the final demo narrative remain essential proof.
 - **Quality of the idea:** evidence-driven Nemotron reasoning, conditional research, and bounded sandbox validation are the core non-obvious differentiators. Avoid presenting mocked outputs as live model results; the final demo must make each real system boundary visible.
 
 ## Scope exclusions
@@ -343,6 +369,12 @@ a6d5da2 Initial commit
 ```
 
 ## State change log
+
+- October 17, 2026: committed product integration as `f2439e5` and pushed `feat/product-integration` to origin at the user’s request. PR creation is blocked by absent GitHub API authentication/CLI; GitHub plugin discovery confirmed it is available but not installed/connected. Saved the exact PR title and description in `docs/PR_PRODUCT_INTEGRATION.md`. Next publication action: authenticate/connect GitHub, create the PR against `main`, and record its returned URL. The next engineering task remains live product acceptance.
+
+- October 17, 2026: user requested publication of the product-integration PR. Reviewed the change set and prepared the Conventional Commit, PR title, verification evidence, and explicit live-acceptance/tooling limits. Removed a stray root lockfile dependency entry left by the reverted optional-sharp experiment so it matches package.json. Publication outcome will be recorded after GitHub confirms it.
+
+- October 17, 2026: created `feat/product-integration` from `8a5ef55`; implemented SQLite persistence, background graph execution, REST/SSE APIs, fixed-context demo controls, RCA/diff generation, and the full local product workspace. Verified 66 backend tests, four frontend tests, two Chrome browser smoke tests, lint/typecheck/build, dependency integrity, compilation, and diff formatting. External reasoning/Kubernetes boundaries were mocked. No commit/push/deployment, provider quota, or live Kubernetes mutation; live product acceptance remains next. Recorded the pre-existing npm 11 `npm ci` sharp-resolution failure and verified `npm install` workaround.
 
 - October 17, 2026: live-verified the integrated OOMKilled workflow with mocked reasoning and real Kind operations. Fixed the Kubernetes health-check race by using a bounded fixed in-pod `/health` request, and fixed Python 3.12 LangGraph stalls caused by sync conditional/executor paths. The workflow passed all nine named checks at 100/100 on attempt one; the lab was reset healthy; 49 backend tests and the full project verification passed. Next: October 23 persistence, APIs, SSE, and product UI.
 - October 17, 2026: collaborator requested a PR; committed implementation as `148fdd5` and pushed `feat/sandbox-verification`. PR creation was blocked by GitHub collaborator permissions, and automatic approval review rejected using a separate account credential without explicit authorization. Live Kubernetes acceptance remains pending and is called out in the prepared PR description.
