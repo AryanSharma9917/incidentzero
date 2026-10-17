@@ -70,7 +70,7 @@ class SandboxRunner:
             }]})
         if args[0] == "logs":
             return self.logs
-        if args[:2] == ["get", "--raw"]:
+        if args[0] == "exec":
             return self.health
         raise AssertionError(args)
 
@@ -89,7 +89,35 @@ def test_sandbox_applies_fixed_operations_and_scores_health():
     assert result.passed and result.score == 100
     patch = next(command for command in runner.commands if command[4] == "patch")
     assert patch[5:10] == ["deployment", "payment-api", "-n", "incidentzero-demo", "--type=strategic"]
+    health = next(command for command in runner.commands if command[4] == "exec")
+    assert health[4:11] == [
+        "exec", "payment-api-new", "-n", "incidentzero-demo", "--", "python", "-c",
+    ]
+    assert health[-1] == SandboxVerifier.HEALTH_SCRIPT
     assert {check.name for check in result.checks} >= {"rollout", "pod-health", "recent-logs", "http-health"}
+
+
+def test_sandbox_retries_service_health_during_endpoint_propagation(monkeypatch):
+    class DelayedHealthRunner(SandboxRunner):
+        def __init__(self):
+            super().__init__()
+            self.health_attempts = 0
+
+        def __call__(self, command, timeout):
+            if command[4] == "exec":
+                self.commands.append(command)
+                self.health_attempts += 1
+                if self.health_attempts == 1:
+                    raise KubernetesCollectionError("Service endpoints are not ready")
+            return super().__call__(command, timeout)
+
+    monkeypatch.setattr("app.services.sandbox.time.sleep", lambda _: None)
+    runner = DelayedHealthRunner()
+
+    result = verify(runner)
+
+    assert result.passed is True
+    assert runner.health_attempts == 2
 
 
 def test_production_target_never_runs_kubectl():

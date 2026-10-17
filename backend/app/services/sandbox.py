@@ -1,4 +1,5 @@
 import json
+import time
 from urllib.parse import urlparse
 
 from app.integrations.kubernetes import (
@@ -20,6 +21,12 @@ class SandboxVerifier:
     CONTEXT = "kind-incidentzero"
     NAMESPACE = "incidentzero-demo"
     SERVICE = "payment-api"
+    HEALTH_ATTEMPTS = 3
+    HEALTH_SCRIPT = (
+        "import urllib.request; "
+        "print(urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=3)"
+        ".read().decode())"
+    )
 
     def __init__(
         self,
@@ -166,11 +173,19 @@ class SandboxVerifier:
                     word in logs.lower() for word in ("fatal", "traceback", "out of memory")
                 ), "Recent logs inspected for fatal application errors.")
                 stage = "http-health"
-                health = self._run(
-                    "get", "--raw",
-                    f"/api/v1/namespaces/{self.NAMESPACE}/pods/{pod.name}:8080/proxy/health",
-                )
-                body = json.loads(health)
+                health = None
+                for attempt in range(self.HEALTH_ATTEMPTS):
+                    try:
+                        health = self._run(
+                            "exec", pod.name, "-n", self.NAMESPACE,
+                            "--", "python", "-c", self.HEALTH_SCRIPT,
+                        )
+                        break
+                    except KubernetesCollectionError:
+                        if attempt + 1 == self.HEALTH_ATTEMPTS:
+                            break
+                        time.sleep(1)
+                body = json.loads(health) if health is not None else None
                 check(stage, isinstance(body, dict) and body.get("status") == "ok",
                       "The replacement pod /health must return status ok.")
         except (KubernetesCollectionError, ValueError, KeyError, TypeError, AttributeError):

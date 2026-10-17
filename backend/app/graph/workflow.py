@@ -1,4 +1,3 @@
-import asyncio
 from uuid import uuid4
 
 from langgraph.graph import END, START, StateGraph
@@ -116,9 +115,7 @@ def build_diagnosis_graph(
         history = state.get("validation_history", [])
         context = state["cluster_context"]
         if history:
-            context = await asyncio.to_thread(
-                collector.collect, state["incident"].service, state["incident"].namespace
-            )
+            context = collector.collect(state["incident"].service, state["incident"].namespace)
         candidate, validation = await remediation_agent.generate(
             state["incident"],
             context,
@@ -150,8 +147,7 @@ def build_diagnosis_graph(
 
     async def validate(state: IncidentState) -> IncidentState:
         assert sandbox_verifier is not None
-        result = await asyncio.to_thread(
-            sandbox_verifier.validate,
+        result = sandbox_verifier.validate(
             state["remediation"], state["incident"], state["cluster_context"],
         )
         exhausted = state["iteration_count"] >= MAX_REMEDIATION_ATTEMPTS
@@ -193,7 +189,10 @@ def build_diagnosis_graph(
                 )],
             }
 
-    def validation_route(state: IncidentState) -> str:
+    async def remediation_route(state: IncidentState) -> str:
+        return "end" if state["status"] == WorkflowStatus.FAILED else "validate"
+
+    async def validation_route(state: IncidentState) -> str:
         if state["validation_passed"] or state["iteration_count"] >= MAX_REMEDIATION_ATTEMPTS:
             return "end"
         return "retry"
@@ -221,7 +220,7 @@ def build_diagnosis_graph(
         graph.add_node("validate_sandbox", validate)
         graph.add_conditional_edges(
             "generate_remediation",
-            lambda state: "end" if state["status"] == WorkflowStatus.FAILED else "validate",
+            remediation_route,
             {"end": END, "validate": "validate_sandbox"},
         )
         graph.add_conditional_edges(
