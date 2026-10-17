@@ -24,3 +24,7 @@ coverage/
 .vscode/
 *.swp
 .tools/
+
+# Browser test artifacts
+frontend/test-results/
+frontend/playwright-report/

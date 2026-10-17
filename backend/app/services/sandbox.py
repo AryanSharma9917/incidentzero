@@ -47,6 +47,21 @@ class SandboxVerifier:
             timeout,
         )
 
+    def is_local_context(self) -> bool:
+        config = json.loads(self._run("config", "view", "--minify", "-o", "json"))
+        clusters = config.get("clusters", [])
+        contexts = config.get("contexts", [])
+        server = urlparse(clusters[0].get("cluster", {}).get("server", "")) if len(clusters) == 1 else None
+        local = (
+            len(clusters) == len(contexts) == 1
+            and contexts[0].get("name") == self.CONTEXT
+            and contexts[0].get("context", {}).get("cluster") == self.CONTEXT
+            and clusters[0].get("name") == self.CONTEXT
+            and server is not None and server.scheme == "https"
+            and server.hostname in {"127.0.0.1", "localhost", "::1"}
+        )
+        return local
+
     def validate(
         self,
         candidate: RemediationCandidate,
@@ -76,18 +91,7 @@ class SandboxVerifier:
 
         stage = "sandbox-context"
         try:
-            config = json.loads(self._run("config", "view", "--minify", "-o", "json"))
-            clusters = config.get("clusters", [])
-            contexts = config.get("contexts", [])
-            server = urlparse(clusters[0].get("cluster", {}).get("server", "")) if len(clusters) == 1 else None
-            local = (
-                len(clusters) == len(contexts) == 1
-                and contexts[0].get("name") == self.CONTEXT
-                and contexts[0].get("context", {}).get("cluster") == self.CONTEXT
-                and clusters[0].get("name") == self.CONTEXT
-                and server is not None and server.scheme == "https"
-                and server.hostname in {"127.0.0.1", "localhost", "::1"}
-            )
+            local = self.is_local_context()
             if not check(stage, local, "Require the named Kind context and a loopback API server."):
                 return result()
 

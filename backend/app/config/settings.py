@@ -21,9 +21,13 @@ class Settings:
     nebius_model: str
     tavily_api_key: str | None
     tavily_base_url: str
+    database_path: str
+    kubectl_binary: str
 
 
 settings = Settings(
+    database_path=os.getenv("DATABASE_PATH", str(Path(__file__).parents[2] / "data" / "incidentzero.sqlite3")),
+    kubectl_binary=os.getenv("KUBECTL_BIN", "kubectl"),
     cors_origins=_cors_origins(),
     nebius_api_key=os.getenv("NEBIUS_API_KEY") or None,
     nebius_base_url=os.getenv(

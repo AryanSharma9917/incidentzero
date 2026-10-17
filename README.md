@@ -16,16 +16,9 @@ The root [AGENTS.md](AGENTS.md) requires every future change set to update the s
 
 ## Current status
 
-Phase 1 foundation provides:
+The local product integrates a typed LangGraph investigation and bounded sandbox remediation workflow with SQLite persistence, incident/run REST APIs, SSE events, and a Next.js dashboard. Nebius/Nemotron performs reasoning; Tavily research is conditional. See [local product setup and API behavior](docs/PRODUCT_INTEGRATION.md).
 
-- a FastAPI backend with a health endpoint;
-- a Next.js, TypeScript, and Tailwind CSS frontend shell;
-- local environment configuration; and
-- basic backend and frontend quality checks.
-- typed Nebius Token Factory and Tavily integration clients.
-- a reproducible local Kind lab with three incident scenarios.
-
-The LangGraph agent workflow and Kubernetes sandbox are intentionally deferred until their respective milestones.
+The earlier OOMKilled workflow was accepted against real local Kind with mocked reasoning. Product integration is verified with deterministic mocked external boundaries; live provider connectivity and UI-to-Kind acceptance remain pending. See the state of play for exact check results.
 
 ## Project structure
 
@@ -34,7 +27,7 @@ incidentzero/
 ├── backend/          FastAPI application and tests
 ├── frontend/         Next.js application
 ├── docs/             Architecture and operational documentation
-├── sandbox/          Kubernetes demo scenarios (future phase)
+├── sandbox/          Kubernetes demo scenarios
 └── scripts/          Development and demo utilities (future phase)
 ```
 
@@ -79,7 +72,7 @@ Open <http://localhost:3000>.
 
 ```bash
 cd backend && pytest
-cd frontend && npm run lint && npm run typecheck && npm run build
+cd frontend && npm run lint && npm run typecheck && npm test && npm run build
 ```
 
 ## Kubernetes demo lab
@@ -90,7 +83,7 @@ The local sandbox includes healthy, OOMKilled, configuration CrashLoop, and read
 
 - NVIDIA Nemotron through Nebius Token Factory (client implemented)
 - Tavily research (client implemented)
-- LangGraph orchestration (planned)
+- LangGraph orchestration
 - Kubernetes and Kind sandbox verification
 - SQLite persistence and Server-Sent Events
 
