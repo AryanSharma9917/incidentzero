@@ -1,5 +1,6 @@
 import asyncio
 import sqlite3
+import hmac
 from typing import Annotated
 
 from fastapi import APIRouter, Header, HTTPException, Query, Request
@@ -7,9 +8,29 @@ from fastapi.responses import PlainTextResponse, StreamingResponse
 
 from app.models.incidents import DemoScenario
 from app.models.runs import IncidentRecord, RunEvent, RunRecord
-from app.storage.sqlite import ActiveRunError
+from app.models.runtime import RuntimeInfo
+from app.storage.sqlite import ActiveRunError, DailyRunLimitError
 
 router = APIRouter(prefix="/api")
+
+
+def authorize_demo(request: Request):
+    config = request.app.state.config
+    if not config.runs_enabled:
+        raise HTTPException(503, "Demo runs are paused by the operator. Saved history remains available.")
+    if config.demo_run_token:
+        supplied = request.headers.get("X-Demo-Run-Token", "")
+        if not hmac.compare_digest(supplied.encode(), config.demo_run_token.encode()):
+            raise HTTPException(401, "A valid demo access code is required.")
+
+
+@router.get("/runtime", response_model=RuntimeInfo)
+def runtime_info(request: Request):
+    config = request.app.state.config
+    return RuntimeInfo(execution_mode=config.execution_mode, runs_enabled=config.runs_enabled,
+                       access_code_required=bool(config.demo_run_token), provider_configured=bool(config.nebius_api_key),
+                       storage_ephemeral=config.storage_ephemeral, daily_run_limit=config.daily_run_limit)
+
 
 
 def require_incident(request: Request, incident_id: str):
@@ -28,6 +49,7 @@ def require_run(request: Request, run_id: str):
 
 @router.post("/incidents/demo/{scenario}", response_model=IncidentRecord, status_code=201)
 def create_demo(scenario: DemoScenario, request: Request):
+    authorize_demo(request)
     return request.app.state.store.create_incident(scenario)
 
 
@@ -43,11 +65,14 @@ def get_incident(incident_id: str, request: Request):
 
 @router.post("/incidents/{incident_id}/run", response_model=RunRecord, status_code=202)
 async def start_run(incident_id: str, request: Request):
+    authorize_demo(request)
     incident = require_incident(request, incident_id)
     try:
-        run = request.app.state.store.create_run(incident_id)
+        run = request.app.state.store.create_run(incident_id, request.app.state.config.daily_run_limit)
     except ActiveRunError as exc:
         raise HTTPException(409, str(exc)) from exc
+    except DailyRunLimitError as exc:
+        raise HTTPException(429, str(exc)) from exc
     request.app.state.runs.start(incident, run.id)
     return run
 
@@ -98,7 +123,7 @@ async def stream(run_id: str, request: Request, after: int = Query(0, ge=0),
                     cursor = event.id
                     yield f"id: {event.id}\nevent: {event.type}\ndata: {event.model_dump_json()}\n\n"
                 run = request.app.state.store.get_run(run_id)
-                if run is None or run.status in {"verified", "failed"}:
+                if run is None or run.status in {"verified", "simulated", "failed"}:
                     # Final transaction may have committed after the preceding event read.
                     for event in request.app.state.store.events(run_id, cursor):
                         cursor = event.id

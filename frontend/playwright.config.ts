@@ -6,8 +6,13 @@ export default defineConfig({
   retries: 0,
   use: {
     baseURL: "http://127.0.0.1:3100",
-    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {},
+
   },
+  projects: [
+    { name: "chromium", use: { browserName: "chromium", launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {} } },
+    { name: "firefox", use: { browserName: "firefox" } },
+    { name: "webkit", use: { browserName: "webkit" } },
+  ],
   webServer: [
     {
       command: "UI_TEST_DATABASE_PATH=$(mktemp -d /tmp/incidentzero-ui.XXXXXX)/history.sqlite3 PYTHONPATH=.:tests .venv/bin/uvicorn tests.ui_fixture:app --host 127.0.0.1 --port 8100",

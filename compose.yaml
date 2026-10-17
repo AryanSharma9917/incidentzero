@@ -1,0 +1,38 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: deploy/backend.Dockerfile
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      EXECUTION_MODE: simulation
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      DATABASE_PATH: /data/incidentzero.sqlite3
+      RUNS_ENABLED: ${RUNS_ENABLED:-false}
+      DEMO_RUN_TOKEN: ${DEMO_RUN_TOKEN:-}
+      DAILY_RUN_LIMIT: ${DAILY_RUN_LIMIT:-20}
+      NEBIUS_API_KEY: ${NEBIUS_API_KEY:-}
+      NEBIUS_MODEL: ${NEBIUS_MODEL:-nvidia/Nemotron-3_5-Lightning}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+    volumes:
+      - incidentzero-history:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+  frontend:
+    build:
+      context: .
+      dockerfile: deploy/frontend.Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+volumes:
+  incidentzero-history:

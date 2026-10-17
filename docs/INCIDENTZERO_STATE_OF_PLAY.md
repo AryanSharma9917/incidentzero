@@ -1,20 +1,20 @@
 # IncidentZero — State of Play
 
-Last updated: October 17, 2026 (Asia/Kolkata), product-integration branch published; PR authentication pending
+Last updated: October 17, 2026 (Asia/Kolkata), October 24 branch pushed; PR authentication pending
 
 This is the canonical live handoff document for developers and coding agents. Update it in every change set that modifies the project. Historical claims must remain truthful: distinguish mocked verification, local live verification, and work that still requires credentials or deployment access.
 
 ## Current checkpoint
 
-The foundation through sandbox-verification implementation is complete. Product integration (the October 23 milestone) is now implemented on local branch `feat/product-integration`, based on `8a5ef55` (`fix: complete live sandbox workflow verification`). The implementation is committed as `f2439e5` (`feat: integrate persisted incident runs and live product workspace`) and pushed to `origin/feat/product-integration`. The user requested a PR against `main`; creation is blocked because GitHub CLI/default API credentials are absent and the GitHub plugin is not installed/connected. SSH push succeeded. The ready-to-use PR title/description is in `docs/PR_PRODUCT_INTEGRATION.md`. A follow-up documentation commit records this publication outcome. No deployment or provider-quota use occurred.
+The user explicitly moved scope to the October 24 deployment-and-polish milestone while October 23 live product acceptance remains pending. Local `main` now contains merge commit `a7d7d1d` (PR #2, product integration). Current work is isolated on `feat/deployment-polish`, based on that clean merged checkpoint; implementation commit `a0a0066` is pushed to `origin/feat/deployment-polish`. PR creation against `main` is pending authenticated GitHub API access: no default API credential/CLI is available, and the GitHub plugin is unconnected. The exact title/description is saved in `docs/PR_DEPLOYMENT_POLISH.md`. A documentation follow-up records the publication outcome. No deployment or provider quota was used.
 
-The new product includes SQLite incident/run persistence, background graph execution, REST APIs, resumable SSE, safe local demo preparation, evidence-based RCA/Markdown export, and Dashboard, Incidents, Agent Runs, and detail screens. Metrics come only from persisted demo history. One active run is enforced transactionally; a file lease prevents a second API process from recovering another process's active database. Restart recovery makes interrupted runs terminal failures.
+October 24 implementation is prepared locally: a polished landing page; typed runtime metadata and explicit hosted simulation mode; real Nemotron/Tavily reasoning preserved; separate `simulated` terminal status that cannot inflate Kubernetes-verified metrics; mode/ephemeral-storage notices and access-code controls; production environment/CORS validation; run pause and daily-start bound; structured operational logs; standalone Next.js packaging; non-root Dockerfiles/loopback Compose setup; an optional Render free-tier blueprint; and a read-only public smoke-check script. See `docs/deployment.md` for exact contracts, source references, and deployment steps.
 
-Local verification in this macOS checkout uses Python 3.13.16 and Node 24.21.0. The backend suite has 66 passing tests; frontend lint, typecheck, four deterministic domain tests, production build, and two Chrome browser smoke tests passed. Final commands and verification boundaries are recorded below. External boundaries in the integration tests are mocked. No live Nebius/Tavily requests or live Kubernetes mutations were performed here; kubectl and Docker are unavailable on PATH.
+**Public deployment is not complete.** The user prefers existing hosting/hackathon credits and supplied the Nebius hackathon link. The official FAQ says promotional credits are Token Factory credits, with no separately published AI Cloud grant, and application hosting can be elsewhere. The user's actual compute entitlement/account remains unverified. Render was discovered as an available but unconnected fallback. No hosting resources, public URL, deployment, payment, provider-quota request, live model call, or Kubernetes mutation occurred in this change set.
 
-The preceding Linux checkpoint live-verified real Kubernetes evidence collection, patch application, rollout, pod inspection, logs, and `/health` with **mocked Nemotron responses**. Its OOMKilled/137/restart-1 workload reached `verified`, 100/100, on attempt one and was reset healthy. That is historical acceptance of the core graph, not live acceptance of the new UI/API integration.
+Local verification: the expanded backend suite has 83 passing tests; frontend lint/typecheck and five domain tests pass. Six browser scenarios each passed in Chromium and WebKit (12 checks); Firefox fails at launch with “Could not find profile folder” before loading the application, including with an explicit writable temporary path. The final production build, standalone asset preparation, and standalone HTTP route/asset checks passed; exact commands and remaining limits are recorded below. Mocked reasoning/Kubernetes browser fixtures are not live provider or cluster acceptance.
 
-The exact next task is UI → persisted API → live Nemotron → local Kind OOMKilled acceptance on a machine with the sandbox/tools and deliberately authorized provider quota. Verify terminal success, streamed evidence, diff, validation, RCA download, and reset the lab healthy. Conditional Tavily access also remains credential-dependent. After that checkpoint, proceed to October 24 deployment and polish; the engineering deadline is October 25, 2026.
+The next engineering task is to verify container images on a Docker-equipped machine and publish the reviewed branch to a confirmed free/credited hosting account, initially with runs paused; configure exact frontend/backend HTTPS origins and secrets, run read-only public checks, then deliberately authorize provider quota for hosted simulation acceptance. Record the real URL and persistence lifetime. Separately complete the pending real UI → Nemotron → local Kind OOMKilled acceptance, conditional Tavily check, and lab reset. The engineering deadline remains October 25, 2026.
 
 ## Product goal
 
@@ -152,9 +152,40 @@ payment-api   1/1 Running   0 restarts
 - Dashboard, incident and run histories/details, three scenario controls, real stored metrics, timeline, evidence/logs, diagnosis/confidence, source panel, diff, checks, final status, and report download. Landing-page CTA opens the workspace.
 - Added `docs/PRODUCT_INTEGRATION.md` for local setup, API contracts, safety, lifecycle, and verification limits; refreshed the README and environment template.
 
+### October 24 deployment preparation
+
+- Added `SimulationController`, which derives marked pod/event/log evidence from trusted scenario manifests and evaluates real policy-approved generated patches against modeled memory/configuration/probe behavior. It does not call Kubernetes or fabricate model diagnoses.
+- Simulation completion is stored as `simulated`, explicitly labeled in UI/checks/RCA, treated as terminal by SSE/history, and excluded from Kubernetes-verified fix counts.
+- Added typed `/api/runtime`, default-paused production writes, constant-time access-code checks on mutation routes, a transactional per-UTC-day start bound, and startup validation of production mode/CORS/provider endpoints.
+- Added JSON operational records with run/incident IDs, stage, event, duration, and status only; no prompts, payloads, exception strings, or secrets.
+- Added problem/workflow/architecture/technology/safety landing content, current execution/storage notices, tab-scoped demo code entry, and cross-browser checks for mobile, replay, failure, simulation, pause, and code entry.
+- Added non-root backend/frontend Dockerfiles, loopback Compose with a named local volume, standalone runtime asset preparation, an optional explicitly free Render blueprint with auto-deploy off, and a read-only HTTPS deployment-check script.
+- Actual public hosting, container runtime checks, provider access, and real Kind acceptance remain pending. Do not mark October 24 complete from local packaging/tests alone.
+
 ## Test inventory and last verified results
 
-Current product-integration checkpoint:
+Current October 24 local checkpoint:
+
+- `backend/.venv/bin/python -m pytest backend -q`: **83 passed**. New checks cover environment/CORS/startup validation, production default pause, protected mutations, explicit HTTP 429 limits, all three configuration simulations, rejection of insufficient memory patches and unsafe changes, real graph execution with mocked providers, distinct simulation terminal status/RCA, and structured metadata-only logs.
+- `backend/.venv/bin/python -m pip check`: passed. `backend/.venv/bin/python -m compileall -q backend/app backend/tests deploy`: passed.
+- `cd frontend && npm run lint && npm run typecheck && npm test && npm run build`: passed; **5 domain tests**, standalone Next.js 15.5.28 build, and static asset preparation. No provider/Kubernetes calls.
+- `PLAYWRIGHT_BROWSERS_PATH=/private/tmp/incidentzero-playwright PLAYWRIGHT_CHROMIUM_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' npm run test:browser -- --project=chromium --project=webkit`: **12 passed**, six scenarios in each engine. Covers persisted OOM click-through, SSE-blocked terminal failure, mobile landing architecture/safety and no horizontal overflow, simulation exclusion from verified metrics, operator pause, and access-code writes with no code in URLs. Backend/model/cluster output in this browser fixture is explicitly mocked.
+- Firefox: **six checks blocked at browser launch**, not application assertions, with `Could not find profile folder`. A retry with explicit writable `TMPDIR` failed identically. Chromium/WebKit results do not imply Firefox passed.
+- Standalone HTTP smoke: `npm start` under an owned temporary localhost:3200 process returned 200 for `/`, `/dashboard`, `/incidents`, `/runs`, both dynamic detail routes, and a generated production JavaScript asset. The process group was stopped afterward. This is a local production-start check, not a remote deployment.
+- Visually inspected the generated mobile landing screenshot. Browser binaries and screenshots remain temporary/ignored, not submission assets.
+- `compose.yaml` and `render.yaml` parsed with PyYAML; verified both optional Render plans are explicitly `free`, no paid disks are declared, and auto-deploy is the string `off`. This is local manifest inspection, not host-side blueprint acceptance.
+- `python3 deploy/check_public.py --help`: passed. Real HTTPS smoke execution remains pending actual URLs. Docker image builds/Compose smoke were **not run** because Docker is absent.
+- `git diff --check`: passed. Branch `feat/deployment-polish`, base `a7d7d1d`; implementation commit `a0a0066` is pushed to origin at the user’s subsequent request; this documentation follow-up records the outcome. PR creation remains authentication-blocked. No deployment, paid resources, provider quota, or live Kubernetes mutation.
+- Existing npm 11.19.0 optional-sharp `npm ci` issue remains; deployment preparation uses the previously verified `npm install` path. Keep browser dev-server checks and production builds sequential to avoid shared `.next` output collisions.
+
+Files created/changed for October 24:
+
+- New backend `app/models/runtime.py`, `app/services/simulation.py`, `app/services/telemetry.py`, and `tests/test_deployment.py`; updated settings, application startup, mutation/runtime/SSE APIs, status model, run execution, RCA generation, persistence budget/terminal behavior, and the isolated browser fixture.
+- New frontend `components/runtime.tsx` and `scripts/prepare-standalone.mjs`; updated landing, workspace/incident/run displays, API/domain helpers, layout/CSS, Next/package configuration, and browser/domain tests.
+- New `deploy/backend.Dockerfile`, `deploy/frontend.Dockerfile`, `deploy/check_public.py`, `compose.yaml`, `render.yaml`, `.dockerignore`, and `docs/deployment.md`; updated `.env.example`, `README.md`, product setup documentation, and this state of play.
+- Recommended Conventional Commit: `feat: prepare hosted demo deployment and polish operator experience`.
+
+Historical product-integration checkpoint (before October 24):
 
 - `backend/.venv/bin/python -m pytest backend -q`: **66 passed** (all external provider/Kubernetes operations mocked).
 - `backend/.venv/bin/python -m pip check`: passed; Python compileall of application and tests: passed.
@@ -264,6 +295,12 @@ CORS_ORIGINS
 NEXT_PUBLIC_API_URL
 DATABASE_PATH
 KUBECTL_BIN
+APP_ENV
+EXECUTION_MODE
+RUNS_ENABLED
+DEMO_RUN_TOKEN
+DAILY_RUN_LIMIT
+STORAGE_EPHEMERAL
 NEBIUS_API_KEY
 NEBIUS_BASE_URL
 NEBIUS_MODEL
@@ -288,9 +325,9 @@ Never commit `.env` or credentials.
 
 The canonical sequence and acceptance criteria are expanded in `docs/MASTER_BUILD_PLAN.md`.
 
-### Next: October 23 — live product acceptance
+### Pending: October 23 — live product acceptance (user explicitly advanced scope)
 
-Implementation is locally test-verified with mocked external boundaries. Before advancing to deployment:
+Implementation is locally test-verified with mocked external boundaries. The user explicitly requested October 24 preparation before these live checks; keep them pending:
 
 - On a prepared Kind machine, deliberately authorize/configure provider quota and run OOMKilled from the UI through the persisted API and real Nemotron reasoning.
 - Verify SSE timeline, evidence, diagnosis, diff, checks, terminal status, RCA export, and persisted reload behavior, then reset the sandbox healthy.
@@ -301,13 +338,13 @@ Exit criterion: the product UI drives the real persisted workflow to a clear ter
 
 ### Later milestones
 
-- October 24: landing-page polish, deployment, CORS/environment validation, public URL, production logging, cross-browser check.
+- October 24 (active): local implementation/packaging prepared; confirm hosting access and free/credited capacity, validate containers, publish initially paused, verify real HTTPS URL/CORS/SSE and deliberately authorized provider calls. Firefox launch remains locally blocked.
 - October 25: feature freeze, five golden-path runs, bug fixes, full documentation, screenshots, architecture diagram, demo video, DEV.to article, Devpost submission.
 
 ## Explicitly pending
 
 - Live provider credential/connectivity verification and UI/API-to-Kind acceptance of product integration.
-- Public deployment, hosted demo access model, and October 24 production logging/polish.
+- Actual public deployment and container-runtime verification. Hosted simulation, basic operator access gating, logging, and landing polish are now implemented locally; credentials/hosting and real acceptance remain pending.
 - Final five-run golden-path stability acceptance and submission screenshots, video, DEV.to article, and Devpost entry.
 - Sustained health/soak measurements; current sandbox verification remains point-in-time.
 
@@ -369,6 +406,12 @@ a6d5da2 Initial commit
 ```
 
 ## State change log
+
+- October 17, 2026: committed October 24 preparation as `a0a0066` and successfully pushed `feat/deployment-polish` to origin. GitHub returned the PR creation URL, but no PR was created because API authentication is absent. Saved title/description in `docs/PR_DEPLOYMENT_POLISH.md`; user can use the GitHub PR form or connect authenticated GitHub access. Actual hosting/live acceptance work remains unchanged and pending.
+
+- October 17, 2026: user requested pushing the October 24 PR. Reviewed branch/diff and existing verification, and prepared `docs/PR_DEPLOYMENT_POLISH.md`. Default GitHub API credentials and CLI are unavailable; plugin discovery confirms GitHub remains unconnected. Commit/SSH push can proceed; automated PR creation requires authenticated GitHub API access.
+
+- October 17, 2026: user explicitly advanced scope to October 24. Confirmed product-integration PR #2 is merged at `a7d7d1d`; created `feat/deployment-polish`. Implemented labeled infrastructure simulation with unchanged real reasoning boundaries, honest terminal states/metrics/RCA, runtime/access/pause/budget controls, environment/CORS validation, structured logs, landing-page polish, standalone/container/free-tier deployment preparation, and expanded tests. Verified 83 backend tests, five frontend tests, 12 Chromium/WebKit browser checks, lint/typecheck/standalone build, local production route/asset smoke, dependency integrity, compilation, and manifest inspection. Firefox is blocked before page load by its profile startup. Public URL/hosting access, container execution, live providers, and Kind acceptance remain pending; no payment, quota, deployment, commit, or push in this milestone.
 
 - October 17, 2026: committed product integration as `f2439e5` and pushed `feat/product-integration` to origin at the user’s request. PR creation is blocked by absent GitHub API authentication/CLI; GitHub plugin discovery confirmed it is available but not installed/connected. Saved the exact PR title and description in `docs/PR_PRODUCT_INTEGRATION.md`. Next publication action: authenticate/connect GitHub, create the PR against `main`, and record its returned URL. The next engineering task remains live product acceptance.
 

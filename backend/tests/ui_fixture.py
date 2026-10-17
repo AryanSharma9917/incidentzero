@@ -2,6 +2,9 @@
 import asyncio
 import json
 import os
+from dataclasses import replace
+from fastapi import Request
+from app.config.settings import settings
 
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,12 +19,14 @@ async def execute(incident, run_id, emit):
     await asyncio.sleep(.2)
     if incident.scenario == "crashloop":
         raise RuntimeError("Test-only upstream failure: secret-token-must-not-leak")
+    simulated = incident.scenario == "readiness"
     context = oom_context()
     context.deployment.update({"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {
         "name": "payment-api", "namespace": "incidentzero-demo",
     }})
     state = jsonable_encoder({
         "incident_id": incident.id, "run_id": run_id,
+        "execution_mode": "simulation" if simulated else "kubernetes",
         "incident": normalize_incident(incident.incident, incident.id),
         "cluster_context": context, "final_diagnosis": json.loads(final_diagnosis()),
         "root_cause": json.loads(final_diagnosis())["root_cause"],
@@ -37,7 +42,7 @@ async def execute(incident, run_id, emit):
     emit("diagnosis.completed", "Mocked diagnosis ready.", state)
     await asyncio.sleep(.2)
     emit("validation.started", "Checking mocked sandbox result.", state)
-    state.update({"status": "verified", "validation_passed": True, "validation_score": 100,
+    state.update({"status": "simulated" if simulated else "verified", "validation_passed": True, "validation_score": 100,
                   "validation_history": [{"score": 100, "passed": True, "checks": [
                       {"name": "http-health", "passed": True, "message": "Mocked /health returned status ok."},
                   ]}]})
@@ -45,8 +50,31 @@ async def execute(incident, run_id, emit):
     return state
 
 
-app = create_app(database_path=os.environ["UI_TEST_DATABASE_PATH"], executor=execute)
+fixture_config = replace(settings, app_environment="local", execution_mode="kubernetes", runs_enabled=True,
+                         demo_run_token=None, nebius_api_key="mocked-test-key", daily_run_limit=100)
+app = create_app(database_path=os.environ["UI_TEST_DATABASE_PATH"], executor=execute, config=fixture_config)
 
 # The test server is isolated from developer CORS/credentials and binds only to loopback.
 app.add_middleware(CORSMiddleware, allow_origins=["http://127.0.0.1:3100"],
                    allow_methods=["GET", "POST"], allow_headers=["*"])
+
+
+@app.post("/__test__/reset")
+def reset(request: Request):
+    with app.state.store.connect() as db:
+        db.execute("DELETE FROM events")
+        db.execute("DELETE FROM runs")
+        db.execute("DELETE FROM incidents")
+    app.state.config = fixture_config
+    return {"ok": True}
+
+
+@app.post("/__test__/mode/{mode}")
+def set_mode(mode: str):
+    if mode == "paused":
+        app.state.config = replace(fixture_config, runs_enabled=False)
+    elif mode == "protected":
+        app.state.config = replace(fixture_config, demo_run_token="fixture-access-code")
+    elif mode == "simulation":
+        app.state.config = replace(fixture_config, execution_mode="simulation", storage_ephemeral=True)
+    return {"ok": True}
