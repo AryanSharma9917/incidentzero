@@ -14,6 +14,8 @@ ec85693 feat: add safe remediation generation and policy validation
 
 The sandbox verification change set is on `feat/sandbox-verification`, branched from `ec85693`. It implements the October 22 controlled verifier and one bounded workflow retry. The collaborator explicitly authorized editing shared workflow-state contracts and subsequently requested a pull request, authorizing commit and branch push. This handoff is included in that PR change set. No deployment, provider call, or Kubernetes mutation was performed.
 
+Implementation commit `148fdd5` was pushed successfully to `origin/feat/sandbox-verification`. GitHub PR creation returned HTTP 422 (`must be a collaborator`) using the default configured HTTPS credential. Automatic approval review rejected an owner-specific credential retry because separate-account use was not explicitly authorized. PR creation remains pending appropriate GitHub collaborator authentication; the branch is available for review. This documentation follow-up records the publication outcome.
+
 October 22 remains the next incomplete milestone: the implementation is deterministically tested, but real local OOMKilled end-to-end verification is pending. The current macOS machine has no Docker, Kind, or kubectl on PATH and no `.tools/kubectl`. Provision the local lab and verify the integrated workflow before advancing to October 23. Writes remain restricted to the fixed `kind-incidentzero` context and `incidentzero-demo/payment-api` sandbox target.
 
 ## Product goal
@@ -340,7 +342,7 @@ a6d5da2 Initial commit
 
 ## State change log
 
-- October 17, 2026: collaborator requested a PR for the sandbox verification checkpoint; prepared the change set for commit and publication from `feat/sandbox-verification`. Live Kubernetes acceptance remains pending and is called out in the PR scope.
+- October 17, 2026: collaborator requested a PR; committed implementation as `148fdd5` and pushed `feat/sandbox-verification`. PR creation was blocked by GitHub collaborator permissions, and automatic approval review rejected using a separate account credential without explicit authorization. Live Kubernetes acceptance remains pending and is called out in the prepared PR description.
 - October 17, 2026: pulled current main and created `feat/sandbox-verification`; implemented fixed local sandbox targeting, live patch revalidation, rollout and owned-pod/log/HTTP checks, scores, validation history, and a maximum of two remediation attempts. All 48 backend tests passed with mocked external boundaries. Live Kubernetes verification remains blocked by missing local tooling; no provider quota consumed. Next: live local October 22 OOM workflow verification.
 - October 17, 2026: completed and locally verified structured remediation generation, strict YAML and target policies, scenario-appropriate patches for all three demo failures, and bounded repair of rejected candidates; Kubernetes application remains intentionally pending.
 - October 17, 2026: completed and locally verified conditional Tavily routing, bounded focused research, cross-query source deduplication, final structured Nemotron synthesis, and citation allow-list repair; live provider verification remains pending.
