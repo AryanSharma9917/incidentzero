@@ -1,20 +1,20 @@
 # IncidentZero — State of Play
 
-Last updated: October 16, 2026 (Asia/Kolkata)
+Last updated: October 17, 2026 (Asia/Kolkata)
 
 This is the canonical live handoff document for developers and coding agents. Update it in every change set that modifies the project. Historical claims must remain truthful: distinguish mocked verification, local live verification, and work that still requires credentials or deployment access.
 
 ## Current checkpoint
 
-The October 17 foundation and October 18 Kubernetes demo-lab milestones are complete. The repository is on `main`, synchronized with `origin/main`, at commit:
+The October 17 foundation, October 18 Kubernetes demo-lab, and October 19 diagnosis milestones are complete. The last committed checkpoint on `main` is synchronized with `origin/main` at:
 
 ```text
-36c09a2 feat: add Kubernetes demo lab and context collector
+5ebdd4b docs: add state of play and Codex handoff guide
 ```
 
-The worktree was clean immediately before this documentation system was added. These handoff documents are the current uncommitted change set.
+The current uncommitted change set is the October 19 diagnosis milestone described below. It has passed local automated verification but has not been committed or pushed.
 
-The next engineering milestone is October 19: typed LangGraph state, incident intake, context collection node, and Nemotron diagnosis of the real OOMKilled evidence. Do not begin remediation or sandbox mutation logic in that milestone.
+The next engineering milestone is October 20: conditional Tavily research, query generation, source normalization, and Nemotron synthesis into an enriched final diagnosis. Do not begin remediation or sandbox mutation logic in that milestone.
 
 ## Product goal
 
@@ -104,6 +104,18 @@ The local Kind cluster was left in a healthy state after testing:
 payment-api   1/1 Running   0 restarts
 ```
 
+### LangGraph diagnosis workflow
+
+- LangGraph 1.2.15 is pinned as a backend dependency.
+- `IncidentState` is a typed, forward-compatible graph state covering incident input, Kubernetes context, hypotheses, research, remediation, validation, timeline, status, and errors.
+- Deterministic intake fixtures exist for OOMKilled, crash-loop, and readiness-failure demos; the scenario label is not placed in graph state or model evidence.
+- The compiled workflow runs intake, read-only Kubernetes collection, and Nemotron diagnosis nodes.
+- The diagnosis prompt contains compact incident and Kubernetes evidence, requires evidence-backed JSON, and is validated into strict Pydantic models.
+- Invalid model output receives exactly one repair attempt; the workflow then fails clearly instead of retrying without a bound.
+- Kubernetes collection remains read-only. No remediation or sandbox mutation was added.
+- Mocked end-to-end graph verification shows OOMKilled evidence producing a validated insufficient-memory hypothesis with confidence and supporting evidence.
+- A live Nemotron diagnosis was not run because provider credentials are not present; no quota was consumed.
+
 ## Test inventory and last verified results
 
 Backend tests currently cover:
@@ -117,12 +129,16 @@ Backend tests currently cover:
 - unsafe Kubernetes resource-name rejection;
 - unhealthy-pod selection;
 - YAML validity for every sandbox manifest;
-- expected configuration encoded by all three incidents.
+- expected configuration encoded by all three incidents;
+- incident normalization without leaking scenario labels;
+- Nemotron structured-diagnosis parsing and bounded repair;
+- bounded failure after two malformed model responses;
+- end-to-end LangGraph intake, context, diagnosis, status, and timeline propagation.
 
 Last complete verification:
 
 ```text
-pytest:                    15 passed
+pytest:                    19 passed
 Python compileall:         passed
 Bash syntax checks:        passed
 Kustomize base render:     passed
@@ -131,10 +147,9 @@ Kustomize crash render:    passed
 Kustomize readiness render: passed
 Frontend ESLint:           passed
 Frontend TypeScript:       passed
+Frontend production build: passed
 git diff --check:          passed
 ```
-
-Earlier in the same development session, the unchanged frontend production build also passed on Next.js 15.5.28.
 
 ## Environment and operational notes
 
@@ -182,23 +197,19 @@ Never commit `.env` or credentials.
 
 The canonical sequence and acceptance criteria are expanded in `docs/MASTER_BUILD_PLAN.md`.
 
-### Next: October 19 — diagnosis
+### Next: October 20 — conditional research
 
-- Add LangGraph dependency and a typed graph state.
-- Define typed incident, hypothesis, evidence, diagnosis, timeline, and run-status models.
-- Add deterministic demo incident intake for the three scenarios.
-- Wrap the Kubernetes collector as a graph node.
-- Add a Nemotron diagnosis node using structured output validated by Pydantic.
-- Add repair/retry handling for malformed structured model output.
-- Diagnose OOMKilled from collected evidence; never hard-code the final diagnosis while presenting it as model output.
-- Unit-test routing and parsing with mocked model responses.
-- If credentials are available, run one real Nemotron structured-diagnosis check.
+- Route to Tavily only when the diagnosis marks research as required.
+- Generate a small bounded query set from unresolved hypotheses.
+- Normalize and deduplicate research sources before passing them to Nemotron.
+- Synthesize Kubernetes evidence and sources into an enriched final diagnosis with citations.
+- Add mocked tests for both the research and no-research branches.
+- If credentials are available, run one deliberate live Tavily/Nemotron check and record that quota was consumed.
 
-Exit criterion: supplied/live OOM evidence produces a validated insufficient-memory hypothesis with supporting evidence and confidence.
+Exit criterion: the graph skips unnecessary research, enriches uncertain diagnoses when requested, and produces a validated final diagnosis grounded in cluster evidence and normalized sources.
 
 ### Later milestones
 
-- October 20: conditional Tavily research node, query generation, normalization, synthesis, enriched final diagnosis.
 - October 21: concrete remediation generation, safe patch representation, YAML validation, risk and expected outcome for all three incidents.
 - October 22: sandbox application, rollout/health/restart/log checks, PASS/FAIL scoring, bounded retry loop—the most important engineering milestone.
 - October 23: SQLite persistence, incident/run APIs, SSE timeline, dashboard, incident detail, diagnosis, research, diff, validation, and RCA UI.
@@ -207,7 +218,6 @@ Exit criterion: supplied/live OOM evidence produces a validated insufficient-mem
 
 ## Explicitly not implemented yet
 
-- LangGraph state machine or agent nodes.
 - Incident/run database persistence.
 - Incident, run, or SSE APIs.
 - Remediation generation or patch validation.
@@ -217,6 +227,13 @@ Exit criterion: supplied/live OOM evidence produces a validated insufficient-mem
 - Public deployment.
 - Live Nebius or Tavily credential verification.
 - Submission screenshots, video, DEV.to article, or Devpost entry.
+
+## Judging-criteria alignment
+
+- **Technological implementation:** the current product has real Kubernetes evidence collection, typed Nebius/Nemotron and Tavily integrations, and a tested LangGraph diagnosis path. Live credential verification and the later research/remediation loop remain necessary to demonstrate the integrations fully.
+- **Design:** the frontend currently provides a polished foundation, not yet the complete incident workflow. The incident detail, timeline, evidence, diagnosis, diff, validation, and RCA experience remains scheduled for October 23–24.
+- **Potential impact:** the three reproducible failure modes and read-only production/sandbox-write boundary make the operator use case concrete. Verified remediation and the final demo narrative remain essential proof.
+- **Quality of the idea:** evidence-driven Nemotron reasoning, conditional research, and bounded sandbox validation are the core non-obvious differentiators. Avoid presenting mocked outputs as live model results; the final demo must make each real system boundary visible.
 
 ## Scope exclusions
 
@@ -256,6 +273,7 @@ KUBECTL_BIN="$PWD/.tools/kubectl" ./sandbox/scripts/reset.sh
 ## Commit history
 
 ```text
+5ebdd4b docs: add state of play and Codex handoff guide
 36c09a2 feat: add Kubernetes demo lab and context collector
 6f3c856 feat: integrate Nebius Nemotron and Tavily clients
 3a14150 chore: initialize IncidentZero project structure
@@ -264,6 +282,7 @@ a6d5da2 Initial commit
 
 ## State change log
 
+- October 17, 2026: completed and locally verified typed incident intake, LangGraph context/diagnosis flow, strict Nemotron output validation, and one bounded repair attempt; live provider verification remains pending.
 - October 16, 2026: created the mandatory state-of-play and Codex collaborator handoff system.
 - October 16, 2026: completed and live-verified the Kind lab, three deterministic incidents, reset workflow, and Kubernetes collector.
 - October 16, 2026: completed typed Nebius and Tavily clients with mocked contract tests; live credential checks remain pending.
