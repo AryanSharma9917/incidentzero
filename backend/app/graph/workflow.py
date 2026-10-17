@@ -4,6 +4,7 @@ from langgraph.graph import END, START, StateGraph
 
 from app.agents.diagnosis import DiagnosisAgent
 from app.agents.intake import normalize_incident
+from app.agents.research import ResearchAgent
 from app.graph.state import IncidentState
 from app.integrations.kubernetes import KubernetesContextCollector
 from app.models.diagnosis import TimelineEvent, WorkflowStatus
@@ -12,6 +13,7 @@ from app.models.diagnosis import TimelineEvent, WorkflowStatus
 def build_diagnosis_graph(
     collector: KubernetesContextCollector,
     diagnosis_agent: DiagnosisAgent,
+    research_agent: ResearchAgent,
 ):
     """Compile the evidence-to-hypotheses workflow; it never mutates the cluster."""
 
@@ -59,12 +61,60 @@ def build_diagnosis_graph(
             ],
         }
 
+    async def research_route(state: IncidentState) -> str:
+        return "research" if state["research_required"] else "synthesize"
+
+    async def research(state: IncidentState) -> IncidentState:
+        sources = await research_agent.research(state["research_queries"])
+        return {
+            "research_sources": sources,
+            "timeline_events": [
+                TimelineEvent(
+                    stage="research",
+                    status="complete",
+                    message=f"Collected {len(sources)} unique source(s)",
+                )
+            ],
+        }
+
+    async def synthesize(state: IncidentState) -> IncidentState:
+        sources = state.get("research_sources", [])
+        result = await diagnosis_agent.synthesize(
+            state["incident"],
+            state["cluster_context"],
+            state["hypotheses"],
+            sources,
+        )
+        return {
+            "root_cause": result.root_cause,
+            "root_cause_confidence": result.confidence,
+            "supporting_evidence": result.supporting_evidence,
+            "alternatives": result.alternatives,
+            "research_summary": result.research_summary,
+            "status": WorkflowStatus.SYNTHESIZED,
+            "timeline_events": [
+                TimelineEvent(
+                    stage="synthesis",
+                    status="complete",
+                    message="Produced final evidence-grounded diagnosis",
+                )
+            ],
+        }
+
     graph = StateGraph(IncidentState)
     graph.add_node("intake", intake)
     graph.add_node("collect_kubernetes_context", collect_context)
     graph.add_node("diagnose_with_nemotron", diagnose)
+    graph.add_node("research_with_tavily", research)
+    graph.add_node("synthesize_diagnosis", synthesize)
     graph.add_edge(START, "intake")
     graph.add_edge("intake", "collect_kubernetes_context")
     graph.add_edge("collect_kubernetes_context", "diagnose_with_nemotron")
-    graph.add_edge("diagnose_with_nemotron", END)
+    graph.add_conditional_edges(
+        "diagnose_with_nemotron",
+        research_route,
+        {"research": "research_with_tavily", "synthesize": "synthesize_diagnosis"},
+    )
+    graph.add_edge("research_with_tavily", "synthesize_diagnosis")
+    graph.add_edge("synthesize_diagnosis", END)
     return graph.compile()

@@ -5,10 +5,16 @@ import pytest
 
 from app.agents.diagnosis import DiagnosisAgent, StructuredDiagnosisError
 from app.agents.intake import get_demo_incident, normalize_incident
+from app.agents.research import ResearchAgent
 from app.graph.workflow import build_diagnosis_graph
-from app.models.diagnosis import WorkflowStatus
+from app.models.diagnosis import Hypothesis, WorkflowStatus
 from app.models.incidents import DemoScenario
-from app.models.integrations import NebiusCompletion
+from app.models.integrations import (
+    NebiusCompletion,
+    ResearchEvidence,
+    ResearchResults,
+    ResearchSource,
+)
 from app.models.kubernetes import ContainerEvidence, KubernetesContext, PodEvidence
 
 
@@ -30,6 +36,16 @@ class FakeCollector:
     def collect(self, service: str, namespace: str) -> KubernetesContext:
         self.calls.append((service, namespace))
         return self.context
+
+
+class FakeSearchClient:
+    def __init__(self, results: list[ResearchResults] | None = None) -> None:
+        self.results = results or []
+        self.calls: list[tuple[str, int]] = []
+
+    async def search(self, query: str, *, max_results: int = 5) -> ResearchResults:
+        self.calls.append((query, max_results))
+        return self.results.pop(0)
 
 
 def oom_context() -> KubernetesContext:
@@ -96,6 +112,53 @@ def valid_diagnosis() -> str:
     )
 
 
+def research_diagnosis() -> str:
+    return json.dumps(
+        {
+            "hypotheses": [
+                {
+                    "title": "Container exceeded its memory limit",
+                    "confidence": 0.72,
+                    "evidence": ["Last termination reason is OOMKilled"],
+                }
+            ],
+            "research_required": True,
+            "research_questions": ["Kubernetes OOMKilled exit 137 memory limit guidance"],
+        }
+    )
+
+
+def final_diagnosis(*, source_url: str | None = None) -> str:
+    evidence = [
+        {
+            "statement": "The container was terminated as OOMKilled with exit code 137.",
+            "source_type": "kubernetes",
+            "source_url": None,
+        }
+    ]
+    if source_url:
+        evidence.append(
+            {
+                "statement": "Kubernetes enforces container memory limits with OOM termination.",
+                "source_type": "external",
+                "source_url": source_url,
+            }
+        )
+    return json.dumps(
+        {
+            "root_cause": "The payment-api container exceeded its 64Mi memory limit.",
+            "confidence": 0.99,
+            "supporting_evidence": evidence,
+            "alternatives": [],
+            "research_summary": (
+                "One relevant external source corroborated the cluster evidence."
+                if source_url
+                else "External research was not required."
+            ),
+        }
+    )
+
+
 def test_demo_intake_normalizes_without_exposing_scenario_label() -> None:
     raw = get_demo_incident(DemoScenario.OOM_KILLED)
     normalized = normalize_incident(raw, "inc-123")
@@ -130,10 +193,51 @@ def test_agent_stops_after_bounded_invalid_responses() -> None:
     assert len(client.calls) == 2
 
 
+def test_synthesis_repairs_an_unsupported_external_citation() -> None:
+    supplied_url = "https://kubernetes.io/docs/oom"
+    client = FakeCompletionClient(
+        [
+            final_diagnosis(source_url="https://untrusted.example/claim"),
+            final_diagnosis(source_url=supplied_url),
+        ]
+    )
+    agent = DiagnosisAgent(client)
+    incident = normalize_incident(get_demo_incident("oomkilled"), "inc-123")
+    hypotheses = json.loads(valid_diagnosis())["hypotheses"]
+    research = [
+        ResearchEvidence(
+            query="Kubernetes OOMKilled",
+            title="Kubernetes documentation",
+            url=supplied_url,
+            excerpt="Memory limits can result in OOM termination.",
+            relevance=0.95,
+            explanation="Relevant to the observed termination.",
+        )
+    ]
+
+    result = asyncio.run(
+        agent.synthesize(
+            incident,
+            oom_context(),
+            [Hypothesis.model_validate(item) for item in hypotheses],
+            research,
+        )
+    )
+
+    assert str(result.supporting_evidence[1].source_url) == supplied_url
+    assert len(client.calls) == 2
+    assert "Use only supplied source URLs" in client.calls[1][-1]["content"]
+
+
 def test_graph_collects_evidence_and_returns_structured_hypotheses() -> None:
     collector = FakeCollector(oom_context())
-    client = FakeCompletionClient([valid_diagnosis()])
-    graph = build_diagnosis_graph(collector, DiagnosisAgent(client))
+    client = FakeCompletionClient([valid_diagnosis(), final_diagnosis()])
+    search = FakeSearchClient()
+    graph = build_diagnosis_graph(
+        collector,
+        DiagnosisAgent(client),
+        ResearchAgent(search),
+    )
 
     result = asyncio.run(
         graph.ainvoke(
@@ -147,12 +251,58 @@ def test_graph_collects_evidence_and_returns_structured_hypotheses() -> None:
         )
     )
 
-    assert result["status"] == WorkflowStatus.DIAGNOSED
+    assert result["status"] == WorkflowStatus.SYNTHESIZED
     assert result["hypotheses"][0].title == "Container exceeded its memory limit"
     assert result["research_required"] is False
+    assert result["root_cause"] == "The payment-api container exceeded its 64Mi memory limit."
+    assert search.calls == []
     assert collector.calls == [("payment-api", "incidentzero-demo")]
     assert [event.stage for event in result["timeline_events"]] == [
         "intake",
         "context",
         "diagnosis",
+        "synthesis",
+    ]
+
+
+def test_graph_researches_only_when_requested_and_cites_supplied_source() -> None:
+    source_url = "https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+    search = FakeSearchClient(
+        [
+            ResearchResults(
+                query="Kubernetes OOMKilled exit 137 memory limit guidance",
+                sources=[
+                    ResearchSource(
+                        title="Resource management for pods and containers",
+                        url=source_url,
+                        content="Memory limits are enforced reactively with out-of-memory kills.",
+                        relevance=0.97,
+                    )
+                ],
+            )
+        ]
+    )
+    client = FakeCompletionClient([research_diagnosis(), final_diagnosis(source_url=source_url)])
+    graph = build_diagnosis_graph(
+        FakeCollector(oom_context()),
+        DiagnosisAgent(client),
+        ResearchAgent(search),
+    )
+
+    result = asyncio.run(
+        graph.ainvoke(
+            {
+                "incident_input": get_demo_incident("oomkilled"),
+                "timeline_events": [],
+                "errors": [],
+            }
+        )
+    )
+
+    assert search.calls == [("Kubernetes OOMKilled exit 137 memory limit guidance", 3)]
+    assert len(result["research_sources"]) == 1
+    assert str(result["supporting_evidence"][1].source_url) == source_url
+    assert [event.stage for event in result["timeline_events"]][-2:] == [
+        "research",
+        "synthesis",
     ]

@@ -1,9 +1,9 @@
 import operator
 from typing import Annotated, TypedDict
 
-from app.models.diagnosis import Hypothesis, TimelineEvent, WorkflowStatus
+from app.models.diagnosis import CitedEvidence, Hypothesis, TimelineEvent, WorkflowStatus
 from app.models.incidents import IncidentInput, NormalizedIncident
-from app.models.integrations import ResearchSource
+from app.models.integrations import ResearchEvidence
 from app.models.kubernetes import KubernetesContext
 
 
@@ -16,11 +16,12 @@ class IncidentState(TypedDict, total=False):
     hypotheses: list[Hypothesis]
     research_required: bool
     research_queries: list[str]
-    research_sources: list[ResearchSource]
+    research_sources: list[ResearchEvidence]
     research_summary: str
     root_cause: str
     root_cause_confidence: float
-    supporting_evidence: list[str]
+    supporting_evidence: list[CitedEvidence]
+    alternatives: list[str]
     remediation_plan: str
     patch: str
     affected_resource: str

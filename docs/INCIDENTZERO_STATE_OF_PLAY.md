@@ -6,15 +6,15 @@ This is the canonical live handoff document for developers and coding agents. Up
 
 ## Current checkpoint
 
-The October 17 foundation, October 18 Kubernetes demo-lab, and October 19 diagnosis milestones are complete. The last committed checkpoint on `main` is synchronized with `origin/main` at:
+The October 17 foundation, October 18 Kubernetes demo-lab, October 19 diagnosis, and October 20 conditional-research milestones are complete. The last committed checkpoint on `main` is synchronized with `origin/main` at:
 
 ```text
-5ebdd4b docs: add state of play and Codex handoff guide
+83486ee docs: add state of play and Codex handoff guide
 ```
 
-The current uncommitted change set is the October 19 diagnosis milestone described below. It has passed local automated verification but has not been committed or pushed.
+The current uncommitted change set is the October 20 conditional-research milestone described below. It has passed local automated verification but has not been committed or pushed.
 
-The next engineering milestone is October 20: conditional Tavily research, query generation, source normalization, and Nemotron synthesis into an enriched final diagnosis. Do not begin remediation or sandbox mutation logic in that milestone.
+The next engineering milestone is October 21: structured remediation, a concrete safe patch, affected-resource/risk/outcome fields, and YAML and policy validation for all three incidents. Do not apply the patch to Kubernetes until the October 22 sandbox-verification milestone.
 
 ## Product goal
 
@@ -116,6 +116,17 @@ payment-api   1/1 Running   0 restarts
 - Mocked end-to-end graph verification shows OOMKilled evidence producing a validated insufficient-memory hypothesis with confidence and supporting evidence.
 - A live Nemotron diagnosis was not run because provider credentials are not present; no quota was consumed.
 
+### Conditional research and final diagnosis
+
+- The graph now branches on Nemotron's validated `research_required` decision.
+- The no-research branch makes zero Tavily calls and proceeds directly to synthesis.
+- The research branch runs at most three normalized, deduplicated focused questions and requests at most three compact Tavily results per question.
+- Sources are globally deduplicated by URL and retain the originating query, title, compact excerpt, relevance, and a plain-language relevance explanation.
+- A second structured Nemotron step combines the incident, Kubernetes/application evidence, hypotheses, and optional research into a final root cause, confidence, cited evidence, alternatives, and concise research summary.
+- External evidence must cite an exact URL supplied by Tavily. Unsupported or malformed citations receive one bounded repair attempt and then fail clearly.
+- Mocked graph tests cover both branches and verify that the research branch incorporates an attributable Kubernetes documentation source.
+- No live Tavily or Nemotron call was made because credentials are unavailable; no provider quota was consumed.
+
 ## Test inventory and last verified results
 
 Backend tests currently cover:
@@ -133,12 +144,16 @@ Backend tests currently cover:
 - incident normalization without leaking scenario labels;
 - Nemotron structured-diagnosis parsing and bounded repair;
 - bounded failure after two malformed model responses;
-- end-to-end LangGraph intake, context, diagnosis, status, and timeline propagation.
+- end-to-end LangGraph intake, context, diagnosis, status, and timeline propagation;
+- bounded research-query normalization and cross-query URL deduplication;
+- zero Tavily calls on the no-research branch;
+- conditional Tavily routing and final Nemotron synthesis;
+- rejection and bounded repair of unsupported external citations.
 
 Last complete verification:
 
 ```text
-pytest:                    19 passed
+pytest:                    22 passed
 Python compileall:         passed
 Bash syntax checks:        passed
 Kustomize base render:     passed
@@ -197,20 +212,19 @@ Never commit `.env` or credentials.
 
 The canonical sequence and acceptance criteria are expanded in `docs/MASTER_BUILD_PLAN.md`.
 
-### Next: October 20 — conditional research
+### Next: October 21 — remediation
 
-- Route to Tavily only when the diagnosis marks research as required.
-- Generate a small bounded query set from unresolved hypotheses.
-- Normalize and deduplicate research sources before passing them to Nemotron.
-- Synthesize Kubernetes evidence and sources into an enriched final diagnosis with citations.
-- Add mocked tests for both the research and no-research branches.
-- If credentials are available, run one deliberate live Tavily/Nemotron check and record that quota was consumed.
+- Define a strict structured remediation model.
+- Generate a concrete Kubernetes patch or safely updated manifest from the final diagnosis.
+- Include the affected resource, reason, risk, and expected outcome.
+- Validate YAML/schema shape and enforce safety policy before accepting a candidate.
+- Produce logically correct candidates for OOMKilled, configuration crash-loop, and readiness failures.
+- Keep model output separate from execution; do not apply candidates to Kubernetes in this milestone.
 
-Exit criterion: the graph skips unnecessary research, enriches uncertain diagnoses when requested, and produces a validated final diagnosis grounded in cluster evidence and normalized sources.
+Exit criterion: every scenario produces a reviewable, safe, scenario-appropriate patch that passes deterministic configuration and policy validation.
 
 ### Later milestones
 
-- October 21: concrete remediation generation, safe patch representation, YAML validation, risk and expected outcome for all three incidents.
 - October 22: sandbox application, rollout/health/restart/log checks, PASS/FAIL scoring, bounded retry loop—the most important engineering milestone.
 - October 23: SQLite persistence, incident/run APIs, SSE timeline, dashboard, incident detail, diagnosis, research, diff, validation, and RCA UI.
 - October 24: landing-page polish, deployment, CORS/environment validation, public URL, production logging, cross-browser check.
@@ -230,7 +244,7 @@ Exit criterion: the graph skips unnecessary research, enriches uncertain diagnos
 
 ## Judging-criteria alignment
 
-- **Technological implementation:** the current product has real Kubernetes evidence collection, typed Nebius/Nemotron and Tavily integrations, and a tested LangGraph diagnosis path. Live credential verification and the later research/remediation loop remain necessary to demonstrate the integrations fully.
+- **Technological implementation:** the current product has real Kubernetes evidence collection, typed Nebius/Nemotron and Tavily integrations, and tested LangGraph diagnosis, conditional-research, and cited-synthesis paths. Live credential verification and the later remediation/verification loop remain necessary to demonstrate the integrations fully.
 - **Design:** the frontend currently provides a polished foundation, not yet the complete incident workflow. The incident detail, timeline, evidence, diagnosis, diff, validation, and RCA experience remains scheduled for October 23–24.
 - **Potential impact:** the three reproducible failure modes and read-only production/sandbox-write boundary make the operator use case concrete. Verified remediation and the final demo narrative remain essential proof.
 - **Quality of the idea:** evidence-driven Nemotron reasoning, conditional research, and bounded sandbox validation are the core non-obvious differentiators. Avoid presenting mocked outputs as live model results; the final demo must make each real system boundary visible.
@@ -273,6 +287,7 @@ KUBECTL_BIN="$PWD/.tools/kubectl" ./sandbox/scripts/reset.sh
 ## Commit history
 
 ```text
+83486ee docs: add state of play and Codex handoff guide
 5ebdd4b docs: add state of play and Codex handoff guide
 36c09a2 feat: add Kubernetes demo lab and context collector
 6f3c856 feat: integrate Nebius Nemotron and Tavily clients
@@ -282,6 +297,7 @@ a6d5da2 Initial commit
 
 ## State change log
 
+- October 17, 2026: completed and locally verified conditional Tavily routing, bounded focused research, cross-query source deduplication, final structured Nemotron synthesis, and citation allow-list repair; live provider verification remains pending.
 - October 17, 2026: completed and locally verified typed incident intake, LangGraph context/diagnosis flow, strict Nemotron output validation, and one bounded repair attempt; live provider verification remains pending.
 - October 16, 2026: created the mandatory state-of-play and Codex collaborator handoff system.
 - October 16, 2026: completed and live-verified the Kind lab, three deterministic incidents, reset workflow, and Kubernetes collector.

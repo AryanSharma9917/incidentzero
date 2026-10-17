@@ -27,3 +27,14 @@ class ResearchResults(BaseModel):
     query: str
     sources: list[ResearchSource]
     response_time: float | None = None
+
+
+class ResearchEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    query: str = Field(min_length=1)
+    title: str = Field(min_length=1)
+    url: HttpUrl
+    excerpt: str = Field(min_length=1, max_length=1000)
+    relevance: float = Field(ge=0, le=1)
+    explanation: str = Field(min_length=1)
