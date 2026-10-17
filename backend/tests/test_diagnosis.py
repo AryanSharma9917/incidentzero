@@ -6,6 +6,7 @@ import pytest
 from app.agents.diagnosis import DiagnosisAgent, StructuredDiagnosisError
 from app.agents.intake import get_demo_incident, normalize_incident
 from app.agents.research import ResearchAgent
+from app.agents.remediation import RemediationAgent
 from app.graph.workflow import build_diagnosis_graph
 from app.models.diagnosis import Hypothesis, WorkflowStatus
 from app.models.incidents import DemoScenario
@@ -159,6 +160,38 @@ def final_diagnosis(*, source_url: str | None = None) -> str:
     )
 
 
+def valid_remediation() -> str:
+    return json.dumps(
+        {
+            "summary": "Increase the payment-api container memory limit.",
+            "affected_resource": {
+                "api_version": "apps/v1",
+                "kind": "Deployment",
+                "name": "payment-api",
+                "namespace": "incidentzero-demo",
+            },
+            "reason": "The observed OOMKilled termination shows the 64Mi limit is insufficient.",
+            "risk": "low",
+            "expected_outcome": "The container remains below its new memory limit.",
+            "patch_yaml": (
+                "apiVersion: apps/v1\n"
+                "kind: Deployment\n"
+                "metadata:\n"
+                "  name: payment-api\n"
+                "  namespace: incidentzero-demo\n"
+                "spec:\n"
+                "  template:\n"
+                "    spec:\n"
+                "      containers:\n"
+                "        - name: payment-api\n"
+                "          resources:\n"
+                "            limits:\n"
+                "              memory: 128Mi\n"
+            ),
+        }
+    )
+
+
 def test_demo_intake_normalizes_without_exposing_scenario_label() -> None:
     raw = get_demo_incident(DemoScenario.OOM_KILLED)
     normalized = normalize_incident(raw, "inc-123")
@@ -231,12 +264,13 @@ def test_synthesis_repairs_an_unsupported_external_citation() -> None:
 
 def test_graph_collects_evidence_and_returns_structured_hypotheses() -> None:
     collector = FakeCollector(oom_context())
-    client = FakeCompletionClient([valid_diagnosis(), final_diagnosis()])
+    client = FakeCompletionClient([valid_diagnosis(), final_diagnosis(), valid_remediation()])
     search = FakeSearchClient()
     graph = build_diagnosis_graph(
         collector,
         DiagnosisAgent(client),
         ResearchAgent(search),
+        RemediationAgent(client),
     )
 
     result = asyncio.run(
@@ -251,10 +285,11 @@ def test_graph_collects_evidence_and_returns_structured_hypotheses() -> None:
         )
     )
 
-    assert result["status"] == WorkflowStatus.SYNTHESIZED
+    assert result["status"] == WorkflowStatus.REMEDIATION_READY
     assert result["hypotheses"][0].title == "Container exceeded its memory limit"
     assert result["research_required"] is False
     assert result["root_cause"] == "The payment-api container exceeded its 64Mi memory limit."
+    assert result["candidate_validation"].passed is True
     assert search.calls == []
     assert collector.calls == [("payment-api", "incidentzero-demo")]
     assert [event.stage for event in result["timeline_events"]] == [
@@ -262,6 +297,7 @@ def test_graph_collects_evidence_and_returns_structured_hypotheses() -> None:
         "context",
         "diagnosis",
         "synthesis",
+        "remediation",
     ]
 
 
@@ -282,11 +318,14 @@ def test_graph_researches_only_when_requested_and_cites_supplied_source() -> Non
             )
         ]
     )
-    client = FakeCompletionClient([research_diagnosis(), final_diagnosis(source_url=source_url)])
+    client = FakeCompletionClient(
+        [research_diagnosis(), final_diagnosis(source_url=source_url), valid_remediation()]
+    )
     graph = build_diagnosis_graph(
         FakeCollector(oom_context()),
         DiagnosisAgent(client),
         ResearchAgent(search),
+        RemediationAgent(client),
     )
 
     result = asyncio.run(
@@ -302,7 +341,8 @@ def test_graph_researches_only_when_requested_and_cites_supplied_source() -> Non
     assert search.calls == [("Kubernetes OOMKilled exit 137 memory limit guidance", 3)]
     assert len(result["research_sources"]) == 1
     assert str(result["supporting_evidence"][1].source_url) == source_url
-    assert [event.stage for event in result["timeline_events"]][-2:] == [
+    assert [event.stage for event in result["timeline_events"]][-3:] == [
         "research",
         "synthesis",
+        "remediation",
     ]

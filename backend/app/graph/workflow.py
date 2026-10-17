@@ -5,6 +5,7 @@ from langgraph.graph import END, START, StateGraph
 from app.agents.diagnosis import DiagnosisAgent
 from app.agents.intake import normalize_incident
 from app.agents.research import ResearchAgent
+from app.agents.remediation import RemediationAgent
 from app.graph.state import IncidentState
 from app.integrations.kubernetes import KubernetesContextCollector
 from app.models.diagnosis import TimelineEvent, WorkflowStatus
@@ -14,8 +15,9 @@ def build_diagnosis_graph(
     collector: KubernetesContextCollector,
     diagnosis_agent: DiagnosisAgent,
     research_agent: ResearchAgent,
+    remediation_agent: RemediationAgent,
 ):
-    """Compile the evidence-to-hypotheses workflow; it never mutates the cluster."""
+    """Compile the evidence-to-remediation workflow; it never mutates the cluster."""
 
     async def intake(state: IncidentState) -> IncidentState:
         incident_id = state.get("incident_id") or str(uuid4())
@@ -86,6 +88,7 @@ def build_diagnosis_graph(
             sources,
         )
         return {
+            "final_diagnosis": result,
             "root_cause": result.root_cause,
             "root_cause_confidence": result.confidence,
             "supporting_evidence": result.supporting_evidence,
@@ -101,12 +104,40 @@ def build_diagnosis_graph(
             ],
         }
 
+    async def remediate(state: IncidentState) -> IncidentState:
+        candidate, validation = await remediation_agent.generate(
+            state["incident"],
+            state["cluster_context"],
+            state["final_diagnosis"],
+        )
+        target = candidate.affected_resource
+        return {
+            "remediation": candidate,
+            "candidate_validation": validation,
+            "remediation_plan": candidate.summary,
+            "patch": candidate.patch_yaml,
+            "affected_resource": (
+                f"{target.api_version}:{target.kind}:{target.namespace}/{target.name}"
+            ),
+            "risk": candidate.risk.value,
+            "expected_outcome": candidate.expected_outcome,
+            "status": WorkflowStatus.REMEDIATION_READY,
+            "timeline_events": [
+                TimelineEvent(
+                    stage="remediation",
+                    status="complete",
+                    message="Generated and policy-validated a reviewable patch candidate",
+                )
+            ],
+        }
+
     graph = StateGraph(IncidentState)
     graph.add_node("intake", intake)
     graph.add_node("collect_kubernetes_context", collect_context)
     graph.add_node("diagnose_with_nemotron", diagnose)
     graph.add_node("research_with_tavily", research)
     graph.add_node("synthesize_diagnosis", synthesize)
+    graph.add_node("generate_remediation", remediate)
     graph.add_edge(START, "intake")
     graph.add_edge("intake", "collect_kubernetes_context")
     graph.add_edge("collect_kubernetes_context", "diagnose_with_nemotron")
@@ -116,5 +147,6 @@ def build_diagnosis_graph(
         {"research": "research_with_tavily", "synthesize": "synthesize_diagnosis"},
     )
     graph.add_edge("research_with_tavily", "synthesize_diagnosis")
-    graph.add_edge("synthesize_diagnosis", END)
+    graph.add_edge("synthesize_diagnosis", "generate_remediation")
+    graph.add_edge("generate_remediation", END)
     return graph.compile()

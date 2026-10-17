@@ -6,15 +6,15 @@ This is the canonical live handoff document for developers and coding agents. Up
 
 ## Current checkpoint
 
-The October 17 foundation, October 18 Kubernetes demo-lab, October 19 diagnosis, and October 20 conditional-research milestones are complete. The last committed checkpoint on `main` is synchronized with `origin/main` at:
+The October 17 foundation through October 21 remediation milestones are complete. The last committed checkpoint on `main` is synchronized with `origin/main` at:
 
 ```text
 83486ee docs: add state of play and Codex handoff guide
 ```
 
-The current uncommitted change set is the October 20 conditional-research milestone described below. It has passed local automated verification but has not been committed or pushed.
+The current uncommitted change set is the October 21 remediation milestone described below. The October 20 research work is already present in the synchronized `83486ee` checkpoint. The remediation work has passed local automated verification but has not been committed or pushed.
 
-The next engineering milestone is October 21: structured remediation, a concrete safe patch, affected-resource/risk/outcome fields, and YAML and policy validation for all three incidents. Do not apply the patch to Kubernetes until the October 22 sandbox-verification milestone.
+The next engineering milestone is October 22: controlled sandbox application, rollout and health checks, PASS/FAIL scoring, and one bounded remediation retry. This is the most important remaining engineering milestone. Writes must remain restricted to the allow-listed `incidentzero-demo` sandbox.
 
 ## Product goal
 
@@ -127,6 +127,20 @@ payment-api   1/1 Running   0 restarts
 - Mocked graph tests cover both branches and verify that the research branch incorporates an attributable Kubernetes documentation source.
 - No live Tavily or Nemotron call was made because credentials are unavailable; no provider quota was consumed.
 
+### Safe remediation candidates
+
+- A strict remediation contract now records summary, exact affected Deployment, reason, risk, expected outcome, and a concrete strategic-merge YAML patch.
+- Nemotron receives the final diagnosis and current Deployment and may change exactly one bounded configuration domain: memory resources, `DATABASE_HOST`, or readiness HTTP path/port.
+- Model-generated commands, images, replicas, security fields, secrets, selectors, labels, service accounts, volumes, and namespace changes are forbidden by both the prompt and deterministic policy.
+- YAML is parsed with safe loading, duplicate-key rejection, and a single-document requirement.
+- Policy validation requires the exact collected `apps/v1 Deployment`, namespace, service, pod-template shape, and container name.
+- Memory candidates must use Kubernetes `Ki`/`Mi`/`Gi` quantities, increase the observed limit, and keep an optional request at or below the limit.
+- Environment candidates may change only the existing `DATABASE_HOST` value; readiness candidates may change only a non-root HTTP path and optional port.
+- Unsafe or malformed model output receives exactly one repair attempt before a terminal generation error.
+- The graph stops at `remediation_ready` with the candidate and named policy checks. It does not execute or apply the patch.
+- Deterministic tests validate logically correct OOMKilled, configuration crash-loop, and readiness candidates and reject image mutation.
+- No live Nemotron generation was run because credentials are unavailable; no quota was consumed.
+
 ## Test inventory and last verified results
 
 Backend tests currently cover:
@@ -148,12 +162,18 @@ Backend tests currently cover:
 - bounded research-query normalization and cross-query URL deduplication;
 - zero Tavily calls on the no-research branch;
 - conditional Tavily routing and final Nemotron synthesis;
-- rejection and bounded repair of unsupported external citations.
+- rejection and bounded repair of unsupported external citations;
+- structured remediation generation and graph-state propagation;
+- safe YAML loading, duplicate-key/single-document handling, target and shape checks;
+- resource, environment, and readiness allow-list policies;
+- correct candidates for all three demo scenarios;
+- rejection and bounded repair of forbidden image changes.
 
 Last complete verification:
 
 ```text
-pytest:                    22 passed
+pytest:                    29 passed
+Python dependency check:  passed
 Python compileall:         passed
 Bash syntax checks:        passed
 Kustomize base render:     passed
@@ -169,6 +189,7 @@ git diff --check:          passed
 ## Environment and operational notes
 
 - Python: 3.12.3 during verification.
+- PyYAML is now a runtime dependency because remediation candidates are parsed and policy-validated before they can enter sandbox verification.
 - Node.js: 22.23.2 during foundation verification.
 - Kind: development build reporting `v0.32.0-alpha+9145d421e0d4f7`; it created a Kubernetes 1.35.0 node locally.
 - Docker daemon works only with elevated sandbox permission in the current Codex environment.
@@ -212,20 +233,21 @@ Never commit `.env` or credentials.
 
 The canonical sequence and acceptance criteria are expanded in `docs/MASTER_BUILD_PLAN.md`.
 
-### Next: October 21 — remediation
+### Next: October 22 — sandbox verification
 
-- Define a strict structured remediation model.
-- Generate a concrete Kubernetes patch or safely updated manifest from the final diagnosis.
-- Include the affected resource, reason, risk, and expected outcome.
-- Validate YAML/schema shape and enforce safety policy before accepting a candidate.
-- Produce logically correct candidates for OOMKilled, configuration crash-loop, and readiness failures.
-- Keep model output separate from execution; do not apply candidates to Kubernetes in this milestone.
+- Validate the selected Kubernetes context and allow writes only to `incidentzero-demo`.
+- Apply only the already policy-approved strategic-merge patch using argument arrays and fixed operations.
+- Wait for Deployment rollout with a hard timeout.
+- Inspect pod phase/readiness, restart count, termination state, recent logs, and `/health`.
+- Produce named PASS/FAIL checks, a validation score, and a terminal result.
+- Feed failed validation evidence into one bounded remediation retry; never permit an infinite loop.
+- Record each iteration and validation check in the workflow timeline.
+- Run at least one real local OOMKilled end-to-end workflow when provider credentials permit; otherwise distinguish mocked model reasoning from live Kubernetes verification exactly.
 
-Exit criterion: every scenario produces a reviewable, safe, scenario-appropriate patch that passes deterministic configuration and policy validation.
+Exit criterion: broken workload → diagnosis → safe patch → sandbox-only application → verified healthy workload, with failure evidence supporting at most one retry.
 
 ### Later milestones
 
-- October 22: sandbox application, rollout/health/restart/log checks, PASS/FAIL scoring, bounded retry loop—the most important engineering milestone.
 - October 23: SQLite persistence, incident/run APIs, SSE timeline, dashboard, incident detail, diagnosis, research, diff, validation, and RCA UI.
 - October 24: landing-page polish, deployment, CORS/environment validation, public URL, production logging, cross-browser check.
 - October 25: feature freeze, five golden-path runs, bug fixes, full documentation, screenshots, architecture diagram, demo video, DEV.to article, Devpost submission.
@@ -234,7 +256,6 @@ Exit criterion: every scenario produces a reviewable, safe, scenario-appropriate
 
 - Incident/run database persistence.
 - Incident, run, or SSE APIs.
-- Remediation generation or patch validation.
 - Automated sandbox verification and retry loop.
 - RCA generation or Markdown export.
 - Dashboard, incident details, live timeline, diff viewer, or validation UI.
@@ -244,7 +265,7 @@ Exit criterion: every scenario produces a reviewable, safe, scenario-appropriate
 
 ## Judging-criteria alignment
 
-- **Technological implementation:** the current product has real Kubernetes evidence collection, typed Nebius/Nemotron and Tavily integrations, and tested LangGraph diagnosis, conditional-research, and cited-synthesis paths. Live credential verification and the later remediation/verification loop remain necessary to demonstrate the integrations fully.
+- **Technological implementation:** the current product has real Kubernetes evidence collection, typed Nebius/Nemotron and Tavily integrations, tested LangGraph diagnosis/research/synthesis paths, and deterministic YAML remediation policy enforcement. Live credential verification and the October 22 sandbox validation loop remain necessary to demonstrate the full autonomous cycle.
 - **Design:** the frontend currently provides a polished foundation, not yet the complete incident workflow. The incident detail, timeline, evidence, diagnosis, diff, validation, and RCA experience remains scheduled for October 23–24.
 - **Potential impact:** the three reproducible failure modes and read-only production/sandbox-write boundary make the operator use case concrete. Verified remediation and the final demo narrative remain essential proof.
 - **Quality of the idea:** evidence-driven Nemotron reasoning, conditional research, and bounded sandbox validation are the core non-obvious differentiators. Avoid presenting mocked outputs as live model results; the final demo must make each real system boundary visible.
@@ -297,6 +318,7 @@ a6d5da2 Initial commit
 
 ## State change log
 
+- October 17, 2026: completed and locally verified structured remediation generation, strict YAML and target policies, scenario-appropriate patches for all three demo failures, and bounded repair of rejected candidates; Kubernetes application remains intentionally pending.
 - October 17, 2026: completed and locally verified conditional Tavily routing, bounded focused research, cross-query source deduplication, final structured Nemotron synthesis, and citation allow-list repair; live provider verification remains pending.
 - October 17, 2026: completed and locally verified typed incident intake, LangGraph context/diagnosis flow, strict Nemotron output validation, and one bounded repair attempt; live provider verification remains pending.
 - October 16, 2026: created the mandatory state-of-play and Codex collaborator handoff system.

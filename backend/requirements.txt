@@ -4,3 +4,4 @@ anyio==4.9.0
 httpx==0.28.1
 python-dotenv==1.2.4
 langgraph==1.2.15
+PyYAML==6.0.3

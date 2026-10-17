@@ -1,10 +1,17 @@
 import operator
 from typing import Annotated, TypedDict
 
-from app.models.diagnosis import CitedEvidence, Hypothesis, TimelineEvent, WorkflowStatus
+from app.models.diagnosis import (
+    CitedEvidence,
+    FinalDiagnosis,
+    Hypothesis,
+    TimelineEvent,
+    WorkflowStatus,
+)
 from app.models.incidents import IncidentInput, NormalizedIncident
 from app.models.integrations import ResearchEvidence
 from app.models.kubernetes import KubernetesContext
+from app.models.remediation import PatchValidation, RemediationCandidate
 
 
 class IncidentState(TypedDict, total=False):
@@ -22,10 +29,14 @@ class IncidentState(TypedDict, total=False):
     root_cause_confidence: float
     supporting_evidence: list[CitedEvidence]
     alternatives: list[str]
+    final_diagnosis: FinalDiagnosis
+    remediation: RemediationCandidate
+    candidate_validation: PatchValidation
     remediation_plan: str
     patch: str
     affected_resource: str
     risk: str
+    expected_outcome: str
     validation_score: int
     validation_passed: bool
     iteration_count: int
