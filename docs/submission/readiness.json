@@ -10,27 +10,27 @@
     },
     {
       "id": "repository_public",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "Repository owner confirmed on 2026-10-18 that the GitHub repository is publicly accessible."
     },
     {
       "id": "container_runtime",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "Local Docker Compose build/start/health/non-root/HTTP smoke verified on 2026-10-18; see state of play."
     },
     {
       "id": "live_nebius",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "Live nvidia/Nemotron-3_5-Lightning connectivity plus five structured-reasoning OOM runs; see golden-path-results.json."
     },
     {
       "id": "conditional_tavily",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "Live read-only conditional workflow: Nemotron requested three research questions, Tavily returned nine normalized sources, and final synthesis completed with citation allow-list enforcement; see state of play."
     },
     {
       "id": "five_live_oom_runs",
-      "status": "pending",
+      "status": "passed",
       "evidence": "golden-path-results.json"
     },
     {

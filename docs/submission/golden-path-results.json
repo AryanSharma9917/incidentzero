@@ -1,8 +1,66 @@
 {
-  "status": "pending",
+  "status": "passed",
   "required_successful_runs": 5,
-  "accepted_live_runs": [],
-  "provider_verification": "pending",
-  "local_kubernetes_product_acceptance": "pending",
-  "note": "Historical real Kind + mocked reasoning acceptance is recorded in the state of play. It does not count as five live provider-to-Kind runs. Use the guarded recorder and review its sanitized artifacts before publishing evidence."
+  "accepted_live_runs": [
+    {
+      "sequence": 1,
+      "incident_id": "90bdcf90-fe37-46f5-b23d-e2db735ed386",
+      "run_id": "1a4e1b26-99b6-48d2-9ce0-5ad3e58f8129",
+      "status": "verified",
+      "mode": "kubernetes",
+      "score": 100,
+      "attempts": 1,
+      "passed": true,
+      "finished_at": "2026-10-18T18:18:11.659321+00:00"
+    },
+    {
+      "sequence": 2,
+      "incident_id": "5fd2e6ee-8713-4572-b2cc-8384f40eb343",
+      "run_id": "e2b172ff-5a3a-4fb8-be90-4d6a6f66095a",
+      "status": "verified",
+      "mode": "kubernetes",
+      "score": 100,
+      "attempts": 1,
+      "passed": true,
+      "finished_at": "2026-10-18T18:18:33.867579+00:00"
+    },
+    {
+      "sequence": 3,
+      "incident_id": "f5dab58e-9143-438b-bf55-89b6ce1aa2ff",
+      "run_id": "d605112f-345b-4819-8808-28b80f1097ff",
+      "status": "verified",
+      "mode": "kubernetes",
+      "score": 100,
+      "attempts": 1,
+      "passed": true,
+      "finished_at": "2026-10-18T18:18:57.836363+00:00"
+    },
+    {
+      "sequence": 4,
+      "incident_id": "8f405cfc-874f-49f4-8c2c-e5ae11c2ffdb",
+      "run_id": "401b89dc-612d-425f-bf6e-e75b0786a9b0",
+      "status": "verified",
+      "mode": "kubernetes",
+      "score": 100,
+      "attempts": 1,
+      "passed": true,
+      "finished_at": "2026-10-18T18:19:17.919044+00:00"
+    },
+    {
+      "sequence": 5,
+      "incident_id": "c727b8d3-90b5-4a0f-9557-67ff58d80ee7",
+      "run_id": "b161f9e9-2975-463f-bb45-4af424d9c7dc",
+      "status": "verified",
+      "mode": "kubernetes",
+      "score": 100,
+      "attempts": 1,
+      "passed": true,
+      "finished_at": "2026-10-18T18:19:38.938437+00:00"
+    }
+  ],
+  "provider_verification": "Live nvidia/Nemotron-3_5-Lightning connectivity and structured reasoning verified through Nebius Token Factory. A separate minimal live Tavily search returned one source; the conditional graph branch was not selected by these OOM runs.",
+  "local_kubernetes_product_acceptance": "Five sequential API-driven OOMKilled runs passed at 100/100 with all nine named checks, one remediation attempt each, generated RCAs, and a healthy final reset.",
+  "evidence_created_at": "2026-10-18T18:17:50.904722+00:00",
+  "reset_healthy": true,
+  "note": "These are real local Kind runs with live Nebius model calls. The recorder reports configured live service transport rather than independent provider attestation; operator-observed connectivity checks are recorded in the state of play. No production Kubernetes target was mutated."
 }

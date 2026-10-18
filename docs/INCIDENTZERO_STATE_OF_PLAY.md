@@ -1,20 +1,20 @@
 # IncidentZero — State of Play
 
-Last updated: October 17, 2026 (Asia/Kolkata), October 25 freeze/submission branch publication
+Last updated: October 18, 2026 (Asia/Kolkata), live provider/Kind acceptance and container verification
 
 This is the canonical live handoff document for developers and coding agents. Update it in every change set that modifies the project. Historical claims must remain truthful: distinguish mocked verification, local live verification, and work that still requires credentials or deployment access.
 
 ## Current checkpoint
 
-The user explicitly advanced scope to October 25 freeze/submission work. October 24 preparation is merged into local `main` at `4594d42` (PR #3); public deployment and earlier live provider/product acceptance remain pending. Current work is isolated on `feat/freeze-submission`, based on that clean merged checkpoint; implementation commit `3b1ca1f` is pushed to `origin/feat/freeze-submission`. The user will create the PR manually against `main`; no PR has been created by this session.
+All previously prepared feature branches are merged into synchronized `main` at `e038438`. On October 18, live credentials were configured locally and paid usage after the Nebius trial was disabled by the user. Live connectivity passed for `nvidia/Nemotron-3_5-Lightning` through Nebius Token Factory and for Tavily Search. The guarded API-to-Kind acceptance recorder then completed five sequential real OOMKilled runs: every run was Kubernetes mode, verified at 100/100, passed all nine named checks, required one remediation attempt, generated an RCA, and finished with a healthy local reset. The accepted records are committed in `docs/submission/golden-path-results.json`.
 
-The local packet includes a complete README; architecture, safety, demo, and development docs; user-selected MIT license; editable SVG/PNG architecture diagram; eight 3:2 screenshots with visible mocked-execution labels; a captioned silent rehearsal video; reproducible test-only capture tooling/provenance; a guarded plan-only five-run acceptance recorder; offline package/release-gate checks; an unpublished DEV.to article and Devpost field draft; and explicit pending acceptance/publication manifests.
+Live acceptance exposed two real integration gaps before the successful sequence: Nemotron 3.5's default exposed thinking consumed the bounded structured-output budget, and the remediation prompt did not describe the validator's exact minimal patch shape. The client now requests the supported direct-answer mode for structured boundaries, the remediation prompt mirrors the deterministic policy, and one bounded retry handles only network errors, HTTP 408/429, and 5xx responses. Authentication failures, malformed responses, policy failures, and model-output repair remain fail-closed and bounded.
 
-**October 25 is not complete or submission-ready.** There are zero accepted live golden-path runs in the committed template. Actual public URL, container verification, live Nebius/Tavily and UI-to-Kind acceptance, five successful runs, final live video/upload, team/visibility confirmations, article publication, and Devpost submission remain pending. Rehearsal media is mocked model/search/Kubernetes output and must not be relabeled as live proof. No hosting, payment, provider quota, live Kubernetes mutation, article/video upload, or Devpost submission occurred. Git branch publication succeeded at the user’s explicit request; no PR was created by this session.
+Container runtime verification is also complete locally. Docker Compose built both images, started a healthy backend and frontend, returned backend `/health` and `/api/runtime`, returned HTTP 200 for the frontend, confirmed runs disabled in simulation mode, and confirmed non-root users (`incidentzero` UID 10001 and `node` UID 1000). The containers were stopped after the smoke check; images and the local volume remain.
 
-Local verification is recorded below. The expanded backend suite currently has 88 passing tests, including refusal of simulated/incomplete/duplicated release evidence. Frontend lint/typecheck, five domain tests, and production build passed. The capture workflow produced eight 1440×960 PNGs and a media-inspected WebM under three minutes with a visible mock banner; final media/package and regression results are recorded below. Prior Chromium/WebKit checks passed; Firefox's startup limitation remains.
+**The project is still not submission-ready.** The repository owner confirmed that GitHub visibility is public. Public deployment, final live video/upload, team confirmation, DEV.to publication, and Devpost submission remain pending. Rehearsal media is mocked and must not be relabeled as live proof. No production Kubernetes target, hosting service, article, video host, or Devpost entry was mutated in this checkpoint.
 
-The exact next task after branch publication/manual PR creation is to review this packet, complete the pending actual hosting/container/provider/Kind acceptance with deliberate quota authorization, record five distinct successful real OOM runs and a healthy reset, then record/upload a final live video, confirm team/access details, and publish approved submission materials. Use the provided runbook and readiness gates; do not mark the milestone complete from rehearsal/package integrity alone. The internal engineering deadline remains October 25, 2026.
+The current worktree is on `main` with uncommitted implementation, tests, acceptance evidence, readiness, and state-of-play changes from this checkpoint. The exact next recommended engineering task is public simulation-mode deployment with HTTPS/CORS/access-code checks, followed by the final live video and publication/submission steps. The internal engineering deadline remains October 25, 2026.
 
 ## Product goal
 
@@ -171,7 +171,29 @@ payment-api   1/1 Running   0 restarts
 - Added offline package/link/provenance checks and separate fail-closed release-readiness checks; simulated, missing, or duplicate acceptance records cannot satisfy the five-run gate. These inspect declared evidence, not independently attested provider transport.
 - Added unpublished DEV.to article, Devpost field draft, reviewed-packet instructions, zero-run acceptance template, and explicit unresolved readiness gates. No major product feature was added.
 
+### October 18 live provider, Kind, and container acceptance
+
+- Live integration checker passed with `nvidia/Nemotron-3_5-Lightning` through Nebius Token Factory and one real Tavily search result. Keys remained local and were not printed, committed, or placed in frontend variables.
+- Added Nemotron 3.5 direct-answer chat-template configuration at structured JSON boundaries, matching NVIDIA's supported API behavior and preventing exposed thinking traces from exhausting bounded output tokens.
+- Tightened the remediation prompt to the validator's exact allow-listed strategic-merge shape without hard-coding a diagnosis or bypassing model generation.
+- Added one bounded retry for Nebius network errors and HTTP 408/429/5xx only. HTTP 401 and other non-transient failures remain immediate terminal errors; structured-output and remediation repair stay independently bounded.
+- Recreated only the isolated `kind-incidentzero` cluster. No production or demo-production context was targeted.
+- Guarded acceptance recorded five sequential real OOMKilled runs with live Nemotron reasoning. Every run was `verified`, Kubernetes mode, score 100, one attempt, all nine named checks passed, and an evidence-derived RCA was produced. The lab reset to a healthy `1/1 Running`, zero-restart baseline.
+- The accepted OOM runs correctly chose no research. A separate deliberately incomplete, read-only incident caused live Nemotron to request three research questions; Tavily returned nine normalized sources; final synthesis completed with citation allow-list enforcement. The model cited no external source because it did not use an external claim, which is allowed and avoids forced citations. The functional conditional Tavily runtime gate is passed.
+- Docker Compose built and ran both application images. Backend and frontend were healthy, backend health/runtime responses passed, frontend returned HTTP 200, runs were disabled in container simulation mode, and both processes ran non-root. Containers were stopped after verification.
+- Targeted provider/diagnosis/remediation/validation tests passed (38). A full 88-test run was attempted but interrupted because `test_protected_mutations_cors_readonly_history_and_runtime` hung in API lifespan shutdown in this environment; no full-suite pass is claimed for this change set yet.
+
 ## Test inventory and last verified results
+
+Current October 18 live checkpoint:
+
+- `PYTHONPATH=backend backend/.venv/bin/python backend/scripts/check_integrations.py`: passed live; exact Nemotron direct response and one Tavily source returned.
+- `PYTHONPATH=backend backend/.venv/bin/python backend/scripts/check_live_research.py`: passed live; Nemotron requested three questions, conditional Tavily returned nine normalized sources, and final synthesis completed with no out-of-allow-list citations.
+- `PYTHONPATH=backend backend/.venv/bin/python -m scripts.record_golden_runs --execute --allow-provider-quota ...`: five of five sequential real OOMKilled runs passed; each scored 100, passed nine checks, and used one remediation attempt. Final reset healthy.
+- Targeted backend regression suite for provider, diagnosis, remediation, and validation: **38 passed**. `git diff --check`: passed at that point.
+- Full backend suite: **not completed in this checkpoint**. It reached 21 passing tests, then the protected-mutations API lifecycle test hung; the run was interrupted and is recorded as an environmental/test-lifecycle problem to resolve rather than a pass.
+- `docker compose build`: passed. `docker compose up --detach --wait`: backend and frontend healthy. Backend `/health` and `/api/runtime`: passed; frontend `/`: HTTP 200; backend UID 10001 and frontend UID 1000; runs disabled. `docker compose stop`: passed.
+- Git: synchronized `main` started clean at `e038438`; the current uncommitted change set contains the structured-output/retry/prompt fixes, deterministic tests, five-run evidence, readiness updates, and this handoff update.
 
 Current October 25 local checkpoint:
 
@@ -440,6 +462,9 @@ a6d5da2 Initial commit
 ```
 
 ## State change log
+
+- October 18, 2026: user configured live Nebius and Tavily credentials using promotional credits and disabled paid usage after the Nebius trial. Live connectivity passed for `nvidia/Nemotron-3_5-Lightning` and Tavily. Initial acceptance exposed default Nemotron thinking-output exhaustion and an under-specified remediation shape; added supported direct-answer configuration, exact policy prompt constraints, and one transient-only provider retry with deterministic tests. After fail-closed intermediate runs and healthy resets, the guarded recorder completed five consecutive real OOMKilled API-to-Kind runs at 100/100 with all nine checks and one attempt each. A separate read-only ambiguous incident live-verified conditional research: Nemotron requested three questions, Tavily returned nine sources, and synthesis enforced the source allow-list. Docker Compose build/runtime, HTTP health, disabled-run state, and non-root execution also passed. Public deployment/visibility, final live media, team confirmation, publication, and submission remain pending. Full backend regression was attempted but not completed because the protected-mutations lifecycle test hung during this environment's run.
+- October 18, 2026: repository owner confirmed the GitHub repository is public. Updated the release gate from pending to passed. The current live-acceptance implementation and evidence remain uncommitted locally and still need review, commit, and push.
 
 - October 17, 2026: user authorized committing/pushing `feat/freeze-submission` and will create the PR manually. Rechecked package integrity, backend tests, and diff formatting; prepared `docs/PR_FREEZE_SUBMISSION.md` with title, review scope, verification, and unresolved live/submission requirements. Committed as `3b1ca1f` and successfully pushed to origin with upstream tracking. GitHub returned `https://github.com/rakshitsharma0402/incidentzero/pull/new/feat/freeze-submission`; the user will create the PR. Backend tests passed again (88), package integrity passed, and staged diff formatting passed. This documentation follow-up records the publication outcome.
 

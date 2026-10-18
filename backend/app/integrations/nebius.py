@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import Sequence
 from typing import Any, Literal, TypedDict
 
@@ -50,27 +51,42 @@ class NebiusClient:
         if not messages:
             raise ValueError("At least one chat message is required")
 
-        try:
-            response = await self._http.post(
-                f"{self._base_url}/chat/completions",
-                headers={"Authorization": f"Bearer {self._api_key}"},
-                json={
-                    "model": self._model,
-                    "messages": list(messages),
-                    "temperature": temperature,
-                    "max_tokens": max_tokens,
-                },
-            )
-            response.raise_for_status()
-            return self._parse_response(response.json())
-        except httpx.RequestError as exc:
-            raise IntegrationResponseError("Nebius request failed due to a network error") from exc
-        except httpx.HTTPStatusError as exc:
-            raise IntegrationResponseError(
-                f"Nebius returned HTTP {exc.response.status_code}"
-            ) from exc
-        except (ValueError, ValidationError, KeyError, IndexError, TypeError) as exc:
-            raise IntegrationResponseError("Nebius returned a malformed response") from exc
+        payload = {
+            "model": self._model,
+            "messages": list(messages),
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            # Nemotron 3.5 enables an exposed reasoning trace by default. The
+            # agent boundary needs the final structured answer, not chain-of-
+            # thought that can consume the entire bounded output budget.
+            "chat_template_kwargs": {"enable_thinking": False},
+        }
+        for attempt in range(2):
+            try:
+                response = await self._http.post(
+                    f"{self._base_url}/chat/completions",
+                    headers={"Authorization": f"Bearer {self._api_key}"},
+                    json=payload,
+                )
+                response.raise_for_status()
+                return self._parse_response(response.json())
+            except httpx.RequestError as exc:
+                if attempt == 0:
+                    await asyncio.sleep(0.5)
+                    continue
+                raise IntegrationResponseError(
+                    "Nebius request failed due to a network error"
+                ) from exc
+            except httpx.HTTPStatusError as exc:
+                status = exc.response.status_code
+                if attempt == 0 and (status in {408, 429} or status >= 500):
+                    await asyncio.sleep(0.5)
+                    continue
+                raise IntegrationResponseError(f"Nebius returned HTTP {status}") from exc
+            except (ValueError, ValidationError, KeyError, IndexError, TypeError) as exc:
+                raise IntegrationResponseError("Nebius returned a malformed response") from exc
+
+        raise AssertionError("bounded Nebius retry loop exhausted unexpectedly")
 
     @staticmethod
     def _parse_response(payload: dict[str, Any]) -> NebiusCompletion:

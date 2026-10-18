@@ -54,7 +54,13 @@ class RemediationAgent:
                     "one container domain: memory requests/limits, DATABASE_HOST value, or readiness "
                     "httpGet path/port. Never change images, commands, replicas, security settings, "
                     "secrets, labels, selectors, service accounts, volumes, or namespaces. Do not "
-                    "include kubectl, shell commands, or instructions to apply the patch."
+                    "include kubectl, shell commands, or instructions to apply the patch. The patch "
+                    "must contain exactly apiVersion, kind, metadata, and spec at the top level; "
+                    "metadata must contain only name and namespace; spec must contain only template; "
+                    "the pod template must contain only spec; and the pod spec must contain only one "
+                    "containers entry for the supplied service. For a memory change, include only a "
+                    "memory limit greater than the current limit and optionally a memory request no "
+                    "greater than that limit; never copy CPU fields into the patch."
                 ),
             },
             {"role": "user", "content": json.dumps(payload, separators=(",", ":"))},

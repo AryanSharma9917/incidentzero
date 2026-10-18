@@ -167,3 +167,6 @@ def test_agent_repairs_policy_rejected_candidate() -> None:
     assert "128Mi" in result.patch_yaml
     assert len(client.calls) == 2
     assert "safety policy" in client.calls[1][-1]["content"]
+    system_prompt = client.calls[0][0]["content"]
+    assert "metadata must contain only name and namespace" in system_prompt
+    assert "never copy CPU fields" in system_prompt

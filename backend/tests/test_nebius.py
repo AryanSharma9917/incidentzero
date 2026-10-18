@@ -16,6 +16,7 @@ def test_nebius_completion_parses_structured_response() -> None:
         assert request.headers["authorization"] == "Bearer test-key"
         body = json.loads(request.content)
         assert body["model"] == "nvidia/test-nemotron"
+        assert body["chat_template_kwargs"] == {"enable_thinking": False}
         return httpx.Response(
             200,
             json={
@@ -74,3 +75,56 @@ def test_nebius_rejects_malformed_response() -> None:
 
     with pytest.raises(IntegrationResponseError, match="malformed"):
         asyncio.run(run())
+
+
+def test_nebius_retries_one_transient_status() -> None:
+    calls = 0
+
+    def handler(_: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return httpx.Response(503, json={"detail": "temporarily unavailable"})
+        return httpx.Response(
+            200,
+            json={
+                "model": "nvidia/test-nemotron",
+                "choices": [{"message": {"content": "ready"}, "finish_reason": "stop"}],
+            },
+        )
+
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http:
+            client = NebiusClient(
+                api_key="test-key",
+                base_url="https://nebius.test/v1",
+                model="nvidia/test-nemotron",
+                http_client=http,
+            )
+            return await client.complete([{"role": "user", "content": "status"}])
+
+    assert asyncio.run(run()).content == "ready"
+    assert calls == 2
+
+
+def test_nebius_does_not_retry_authentication_failure() -> None:
+    calls = 0
+
+    def handler(_: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        return httpx.Response(401, json={"detail": "unauthorized"})
+
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http:
+            client = NebiusClient(
+                api_key="invalid-key",
+                base_url="https://nebius.test/v1",
+                model="nvidia/test-nemotron",
+                http_client=http,
+            )
+            await client.complete([{"role": "user", "content": "status"}])
+
+    with pytest.raises(IntegrationResponseError, match="HTTP 401"):
+        asyncio.run(run())
+    assert calls == 1
