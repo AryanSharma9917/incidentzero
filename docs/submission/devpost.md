@@ -40,7 +40,7 @@ A useful autonomous workflow needs reliable failure states and reviewable eviden
 
 ## What's next
 
-Complete public deployment, live provider/Kind acceptance, five successful golden-path recordings, and the final live video. Later work could evaluate sustained stability; enterprise integrations remain out of this release scope.
+Complete one authenticated hosted simulation check, publish the DEV.to article, confirm team fields, and submit Devpost. Later work could evaluate sustained stability; enterprise integrations remain out of this release scope.
 
 ## Built with
 
@@ -50,8 +50,8 @@ Python; FastAPI; Pydantic; LangGraph; SQLite; Server-Sent Events; Next.js; TypeS
 
 | Field | Value |
 | --- | --- |
-| Source (public visibility still to verify) | https://github.com/rakshitsharma0402/incidentzero |
-| Public demo/test build | PENDING — no deployed URL verified |
+| Source | https://github.com/AryanSharma9917/incidentzero — public visibility confirmed |
+| Public demo/test build | https://incidentzero-web.onrender.com — free hosted simulation; access code required to start runs |
 | Final public video (under three minutes) | https://youtu.be/RaPNBI7qMDQ — public, verified online at 2:31 |
 | DEV.to article | PENDING — `article.md` is an unpublished draft |
 | Eight screenshots | `../assets/screenshots/`; visibly marked mocked rehearsal |
@@ -61,9 +61,9 @@ Python; FastAPI; Pydantic; LangGraph; SQLite; Server-Sent Events; Next.js; TypeS
 | Existing-project/start-date declaration | PENDING — confirm with team; Git dates alone do not establish it |
 | Provider/tool feedback | PENDING — add actual live usage feedback; do not invent experiences |
 
-## Private judging instructions (complete after deployment)
+## Private judging instructions
 
-Provide the actual HTTPS URL, access-code instructions if required, execution mode, account quota limits, and known cold-start/storage behavior. Verify access with an unauthenticated browser before sending. Share no provider keys. Do not publish a demo access code in this repository. Ensure judges can test through the required judging period; confirm the current rules before final submission.
+Open `https://incidentzero-web.onrender.com`. The application uses controlled infrastructure simulation with real configured Nemotron reasoning and conditional Tavily; successful hosted runs are labeled `simulated`, not Kubernetes-verified. Enter the separately supplied demo access code before creating an incident. The free service may need about a minute to wake after inactivity, history is ephemeral, and starts are limited to five per UTC day. Share no provider keys and do not publish the demo access code in this repository.
 
 ## Final review
 

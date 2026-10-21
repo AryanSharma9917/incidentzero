@@ -40,7 +40,8 @@ python3 scripts/check_submission.py --inspect-video /absolute/path/to/ffmpeg
 - [x] Conditional Tavily branch verified live when requested.
 - [x] Five distinct successful real OOMKilled product runs, with reviewed evidence and healthy lab reset.
 - [x] Docker build/runtime smoke on an equipped machine.
-- [ ] Actual public deployment URL, HTTPS/CORS/SSE/assets, and judging access checked.
+- [x] Public deployment URL, frontend/assets, backend health/runtime, and exact-origin CORS checked read-only.
+- [ ] One access-code-protected hosted workflow and SSE/report path checked end to end.
 - [x] Public repository visibility confirmed; MIT and dependency notices checked.
 - [x] Final live demonstration publicly uploaded and verified online at 2:31; the repository WebM remains rehearsal-only.
 - [ ] Team roster, attribution, representative consent, project-start declaration, and actual tool feedback confirmed.

@@ -8,8 +8,8 @@ An evidence-driven Kubernetes incident engineer built for the Nebius x NVIDIA Gl
 
 | Project link | Current state |
 | --- | --- |
-| Source | [GitHub repository](https://github.com/rakshitsharma0402/incidentzero); public visibility must be confirmed for submission |
-| Live demo | **Pending deployment** — no verified public URL |
+| Source | [Public GitHub repository](https://github.com/AryanSharma9917/incidentzero) |
+| Live demo | [Public Render application](https://incidentzero-web.onrender.com) — controlled hosted simulation |
 | Final live video | [Public YouTube demo](https://youtu.be/RaPNBI7qMDQ) — verified online at 2:31 |
 | Local rehearsal video | [Captioned rehearsal WebM](docs/assets/rehearsal.webm) — mocked model/search/Kubernetes, not live evidence |
 | DEV.to | [Unpublished article draft](docs/submission/article.md) |
@@ -35,7 +35,7 @@ IncidentZero turns that investigation into a visible run: symptoms → evidence 
 
 ## Verification status
 
-Live Nebius/Nemotron and Tavily connectivity, five consecutive real API-to-Kind OOM runs, container-runtime checks, and an additional UI-driven verified recording run are complete. Deterministic backend/browser tests still mock external boundaries by design. Public deployment remains pending, and Firefox is locally blocked at profile startup. See [state of play](docs/INCIDENTZERO_STATE_OF_PLAY.md) for exact recorded checks and limitations.
+Live Nebius/Nemotron and Tavily connectivity, five consecutive real API-to-Kind OOM runs, container-runtime checks, and an additional UI-driven verified recording run are complete. The public Render application and API passed read-only deployment checks with hosted runs enabled behind an access code and a five-run daily cap. Hosted infrastructure remains explicitly simulated; an authenticated hosted run is still pending. Deterministic backend/browser tests mock external boundaries by design, and Firefox is locally blocked at profile startup. See [state of play](docs/INCIDENTZERO_STATE_OF_PLAY.md) for exact recorded checks and limitations.
 
 The internal feature-complete deadline is **October 25, 2026**. October 30 is the submission deadline, not the engineering target. October 25 local materials are prepared; the release is not submission-ready while the live/publication gates remain unresolved.
 

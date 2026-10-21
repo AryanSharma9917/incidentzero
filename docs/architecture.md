@@ -65,4 +65,4 @@ Only the first mode can provide real Kubernetes acceptance. A point-in-time `/he
 
 ## Deployment state
 
-The frontend has a standalone Node build and the backend is a Python service. Container and free-tier preparation is described in [deployment.md](deployment.md). There is no verified public deployment URL yet. No cloud service or personal payment is required for offline tests, screenshot capture, or the rehearsal recording.
+The frontend has a standalone Node build and the backend is a Python service. The free-tier deployment described in [deployment.md](deployment.md) is live at [incidentzero-web.onrender.com](https://incidentzero-web.onrender.com), with an explicitly simulated infrastructure boundary. No cloud service or personal payment is required for offline tests, screenshot capture, or the rehearsal recording.

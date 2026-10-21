@@ -1,12 +1,12 @@
 # October 24 deployment and polish
 
-Status: application/packaging prepared locally. No public service or URL has been created. Hosting credentials, confirmed free capacity/credits, and deliberate authorization for provider quota remain necessary. Live October 23 UI-to-Kind acceptance is still pending.
+Status: deployed on Render's free tier at `https://incidentzero-web.onrender.com`, backed by `https://incidentzero-api.onrender.com`. Read-only checks passed for the landing page, dashboard, API health, runtime configuration, and exact-origin CORS. Hosted runs are enabled behind the demo access code with a five-run daily cap. Infrastructure remains explicitly simulated; one authenticated hosted workflow run is still pending.
 
 ## Hosting and hackathon credits
 
 The user prefers existing hosting or hackathon credits. The supplied event is the [Nebius x NVIDIA Global AI Hackathon](https://nebiusglobalaihackathon.devpost.com/). Its [official FAQ](https://nebiusglobalaihackathon.devpost.com/details/faqs) says published promotional credits cover Token Factory rather than a separate AI Cloud compute grant, and that the rest of an application can be hosted elsewhere when the required NVIDIA model runs through Token Factory. This does not establish which credits or compute the user's account actually has. Confirm available credits before provisioning any paid service; personal spend must remain ₹0.
 
-The repository supports two ordinary application services: Python/FastAPI and Node/Next.js. Use the Dockerfiles with existing credited compute, or the optional `render.yaml` free-tier fallback. Render's [free-tier documentation](https://render.com/docs/free) describes idle spin-down, cold starts, shared instance-hour allowances, and ephemeral local files. No persistent paid disk or paid plan is requested in the blueprint. Public deployment still requires an authenticated hosting account. `render.yaml` uses the current [Blueprint specification](https://render.com/docs/blueprint-spec); its YAML is locally parsed, not validated by a live Render deployment.
+The repository supports two ordinary application services: Python/FastAPI and Node/Next.js. The current deployment uses the `render.yaml` free-tier fallback. Render's [free-tier documentation](https://render.com/docs/free) describes idle spin-down, cold starts, shared instance-hour allowances, and ephemeral local files. No persistent paid disk or paid plan is requested in the blueprint. `render.yaml` uses the current [Blueprint specification](https://render.com/docs/blueprint-spec) and has been exercised by the live Render deployment.
 
 ## Modes and truthful results
 
@@ -22,9 +22,9 @@ A successful simulation has terminal status `simulated`, displayed as **Simulati
 | `APP_ENV` | `production` |
 | `EXECUTION_MODE` | `simulation` |
 | `CORS_ORIGINS` | Exact frontend HTTPS origin, with no trailing slash, path, wildcard, or query |
-| `RUNS_ENABLED` | `false` until provider quota is deliberately authorized |
+| `RUNS_ENABLED` | `true` for judging, protected by the demo code and provider-side quota controls |
 | `DEMO_RUN_TOKEN` | Random 24+ character code shared only with demo operators/judges |
-| `DAILY_RUN_LIMIT` | 1–100 accepted starts per UTC day; default 20, failed runs count |
+| `DAILY_RUN_LIMIT` | `5` in the public deployment; failed runs count |
 | `NEBIUS_API_KEY` | Server-side hosting secret; do not expose in frontend variables |
 | `NEBIUS_MODEL` | A Nemotron model actually accessible through the account |
 | `NEBIUS_TIMEOUT_SECONDS` | Bounded inference timeout in seconds; must be between 5 and 120 |
@@ -87,6 +87,8 @@ Read-only deployed checks:
 ```bash
 python3 deploy/check_public.py --frontend https://YOUR_FRONTEND --backend https://YOUR_BACKEND
 ```
+
+The current public deployment passed this checker with `https://incidentzero-web.onrender.com` and `https://incidentzero-api.onrender.com` on October 21, 2026. The public runtime reported simulation mode, runs enabled, access-code protection, configured providers, ephemeral storage, and daily limit 5.
 
 Then verify CORS in a real browser, paused and wrong-code states, a deliberately authorized model run, conditional research where needed, SSE reconnection, per-run simulation labels, patch review, terminal status, Markdown download, mobile layout, and persisted reload. Record the hosting account/plan confirmation, exact URL, provider boundary, and storage lifetime. Check judges' ability to access the demo with supplied instructions. No public deployment or live integration claim is complete until those checks actually pass.
 

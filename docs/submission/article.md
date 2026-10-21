@@ -61,8 +61,8 @@ A demo also needs to communicate what really ran. Hosted simulation, mocked brow
 
 ## Current status and next steps
 
-The local implementation includes deterministic tests and Chromium/WebKit browser checks. Public deployment, Docker-runtime verification, live provider-to-Kind acceptance, and five recorded successful OOM runs remain pending. The release packet includes a guarded acceptance recorder and an explicit unresolved-gate manifest.
+The implementation includes deterministic tests and Chromium/WebKit browser checks. Docker runtime verification, live provider-to-Kind acceptance, and five recorded successful OOM runs are complete. A free public hosted simulation is available at `https://incidentzero-web.onrender.com`; its infrastructure boundary is explicitly simulated, and one authenticated hosted workflow check remains pending.
 
-Source: [IncidentZero on GitHub](https://github.com/rakshitsharma0402/incidentzero). Public demo: **pending**. Final live video: **pending**. The project is licensed under MIT.
+Source: [IncidentZero on GitHub](https://github.com/AryanSharma9917/incidentzero). Public demo: [incidentzero-web.onrender.com](https://incidentzero-web.onrender.com). Final live video: [YouTube](https://youtu.be/RaPNBI7qMDQ). The project is licensed under MIT.
 
 The next step is to complete those real boundaries, preserve the evidence, and publish a demo that makes the verification scope visible. The internal feature-complete target is October 25, 2026.

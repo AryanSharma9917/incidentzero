@@ -5,8 +5,8 @@
   "gates": [
     {
       "id": "public_demo",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "https://incidentzero-web.onrender.com — frontend/dashboard HTTP 200; API health/runtime and exact-origin CORS passed on 2026-10-21. Runtime: simulation, runs enabled, access code required, providers configured, ephemeral storage, daily limit 5. Authenticated hosted workflow remains a separate pending check."
     },
     {
       "id": "repository_public",
