@@ -27,6 +27,7 @@ A successful simulation has terminal status `simulated`, displayed as **Simulati
 | `DAILY_RUN_LIMIT` | 1–100 accepted starts per UTC day; default 20, failed runs count |
 | `NEBIUS_API_KEY` | Server-side hosting secret; do not expose in frontend variables |
 | `NEBIUS_MODEL` | A Nemotron model actually accessible through the account |
+| `NEBIUS_TIMEOUT_SECONDS` | Bounded inference timeout in seconds; must be between 5 and 120 |
 | `TAVILY_API_KEY` | Server-side secret required only for research-requesting runs |
 | `DATABASE_PATH` | Writable local SQLite file; one instance and one worker |
 | `STORAGE_EPHEMERAL` | `true` if the host discards local disk on restart/redeploy |

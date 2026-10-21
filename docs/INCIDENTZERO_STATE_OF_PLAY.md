@@ -1,6 +1,6 @@
 # IncidentZero — State of Play
 
-Last updated: October 18, 2026 (Asia/Kolkata), live provider/Kind acceptance and container verification
+Last updated: October 21, 2026 (Asia/Kolkata), free Render deployment audit
 
 This is the canonical live handoff document for developers and coding agents. Update it in every change set that modifies the project. Historical claims must remain truthful: distinguish mocked verification, local live verification, and work that still requires credentials or deployment access.
 
@@ -12,9 +12,11 @@ Live acceptance exposed two real integration gaps before the successful sequence
 
 Container runtime verification is also complete locally. Docker Compose built both images, started a healthy backend and frontend, returned backend `/health` and `/api/runtime`, returned HTTP 200 for the frontend, confirmed runs disabled in simulation mode, and confirmed non-root users (`incidentzero` UID 10001 and `node` UID 1000). The containers were stopped after the smoke check; images and the local volume remain.
 
-**The project is still not submission-ready.** The repository owner confirmed that GitHub visibility is public. Public deployment, final live video/upload, team confirmation, DEV.to publication, and Devpost submission remain pending. Rehearsal media is mocked and must not be relabeled as live proof. No production Kubernetes target, hosting service, article, video host, or Devpost entry was mutated in this checkpoint.
+On October 21, two UI-driven OOMKilled recording attempts collected real Kubernetes evidence successfully but failed at the first Nemotron diagnosis boundary after both bounded 30-second requests timed out. Authenticated model-catalog access returned HTTP 200 in 0.52 seconds and confirmed `nvidia/Nemotron-3_5-Lightning` remains available, isolating the issue to inference latency rather than credentials, model access, the UI, or Kubernetes. The Nebius request timeout is now configurable through validated `NEBIUS_TIMEOUT_SECONDS` (5–120 seconds; default 60), while the existing single transient retry and 600-second workflow bound remain unchanged. The local demo is configured for 90 seconds. After restarting, the minimal live check passed: Nemotron returned exactly `IncidentZero ready` and Tavily returned one source. Both failed runs remain honestly stored as failed, and the Kind workload was reset to a healthy `1/1 Running`, zero-restart baseline after each attempt.
 
-The current worktree is on `main` with uncommitted implementation, tests, acceptance evidence, readiness, and state-of-play changes from this checkpoint. The exact next recommended engineering task is public simulation-mode deployment with HTTPS/CORS/access-code checks, followed by the final live video and publication/submission steps. The internal engineering deadline remains October 25, 2026.
+**The project is still not submission-ready.** The repository owner confirmed that GitHub visibility is public. The final live demo is publicly available at `https://youtu.be/RaPNBI7qMDQ`; YouTube metadata returned HTTP 200 and the current online duration was independently read as 151 seconds (2:31), satisfying the three-minute limit. Public deployment, team confirmation, DEV.to publication, and Devpost submission remain pending. Repository rehearsal media is mocked and must not be relabeled as live proof.
+
+The current worktree is on `main` with an untracked local video export plus the timeout-hardening and final-video documentation changes from October 21. The Render Blueprint was re-audited against current official Render documentation: both services use the Free compute plan, no database or persistent disk is declared, automatic deploys are disabled, storage is explicitly ephemeral, and provider-consuming runs start paused. Render deployment still requires the repository owner's authenticated Render dashboard; no Render API key or CLI session is available in this workspace. To make accidental Render overage billing impossible, deploy only in a Render workspace without a payment method—Render documents that it suspends free services/builds at included-usage limits instead of billing when no payment method is present. The exact next recommended task is authenticated Blueprint creation and public access verification, followed by team confirmation, DEV.to publication, and final Devpost submission. The internal engineering deadline remains October 25, 2026.
 
 ## Product goal
 
@@ -187,6 +189,8 @@ payment-api   1/1 Running   0 restarts
 
 Current October 18 live checkpoint:
 
+- October 21 timeout hardening: authenticated Nebius model-catalog request returned HTTP 200 in 0.52 seconds and confirmed the configured model; two preceding live diagnosis runs failed after both bounded 30-second inference attempts timed out. After the local timeout was raised to 90 seconds, the minimal live checker passed with exact Nemotron response `IncidentZero ready` and one Tavily source. Focused settings/provider tests passed (`6 passed`) and `git diff --check` passed.
+
 - `PYTHONPATH=backend backend/.venv/bin/python backend/scripts/check_integrations.py`: passed live; exact Nemotron direct response and one Tavily source returned.
 - `PYTHONPATH=backend backend/.venv/bin/python backend/scripts/check_live_research.py`: passed live; Nemotron requested three questions, conditional Tavily returned nine normalized sources, and final synthesis completed with no out-of-allow-list citations.
 - `PYTHONPATH=backend backend/.venv/bin/python -m scripts.record_golden_runs --execute --allow-provider-quota ...`: five of five sequential real OOMKilled runs passed; each scored 100, passed nine checks, and used one remediation attempt. Final reset healthy.
@@ -356,6 +360,7 @@ STORAGE_EPHEMERAL
 NEBIUS_API_KEY
 NEBIUS_BASE_URL
 NEBIUS_MODEL
+NEBIUS_TIMEOUT_SECONDS
 TAVILY_API_KEY
 TAVILY_BASE_URL
 ```
@@ -463,6 +468,9 @@ a6d5da2 Initial commit
 
 ## State change log
 
+- October 21, 2026: re-audited `render.yaml` for the requested ₹0 public deployment against current official Render documentation. Both API and web services declare `plan: free`; there is no paid database or persistent disk; auto-deploy is off; the SQLite filesystem is labeled ephemeral; and provider-consuming runs start disabled. Render warns that workspaces with a payment method can be billed for excess bandwidth/build usage, whereas a workspace without a payment method is suspended instead. No authenticated Render session/API key is present locally, so external Blueprint creation remains an account-owner dashboard action; no service was falsely marked deployed.
+- October 21, 2026: verified the final public YouTube demo at `https://youtu.be/RaPNBI7qMDQ`. YouTube public metadata returned HTTP 200 with the expected IncidentZero title, and the current online media duration was read as 151 seconds (2:31), below the three-minute limit. Updated README and submission records; marked only the final-video and public-video-URL gates passed. The older local export remains untracked and is not treated as the final online duration.
+- October 21, 2026: two UI-driven OOMKilled recording attempts collected real Kind evidence but failed at `diagnosis.started` after two 30-second Nemotron request timeouts. Authenticated catalog access confirmed the key and configured model remained valid. Added validated `NEBIUS_TIMEOUT_SECONDS` configuration (default 60, local demo 90, allowed range 5–120), wired it into the application and live checkers, documented it, and added a deterministic settings test. The single transient retry and 600-second workflow cap remain unchanged. Focused tests passed (`6 passed`), diff formatting passed, and the restarted minimal live check succeeded with exact Nemotron output plus one Tavily source. Both failed runs remain stored honestly, and the sandbox was reset healthy after each failure. Next: record one fresh under-three-minute OOMKilled run.
 - October 18, 2026: user configured live Nebius and Tavily credentials using promotional credits and disabled paid usage after the Nebius trial. Live connectivity passed for `nvidia/Nemotron-3_5-Lightning` and Tavily. Initial acceptance exposed default Nemotron thinking-output exhaustion and an under-specified remediation shape; added supported direct-answer configuration, exact policy prompt constraints, and one transient-only provider retry with deterministic tests. After fail-closed intermediate runs and healthy resets, the guarded recorder completed five consecutive real OOMKilled API-to-Kind runs at 100/100 with all nine checks and one attempt each. A separate read-only ambiguous incident live-verified conditional research: Nemotron requested three questions, Tavily returned nine sources, and synthesis enforced the source allow-list. Docker Compose build/runtime, HTTP health, disabled-run state, and non-root execution also passed. Public deployment/visibility, final live media, team confirmation, publication, and submission remain pending. Full backend regression was attempted but not completed because the protected-mutations lifecycle test hung during this environment's run.
 - October 18, 2026: repository owner confirmed the GitHub repository is public. Updated the release gate from pending to passed. The current live-acceptance implementation and evidence remain uncommitted locally and still need review, commit, and push.
 

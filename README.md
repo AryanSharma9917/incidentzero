@@ -10,7 +10,7 @@ An evidence-driven Kubernetes incident engineer built for the Nebius x NVIDIA Gl
 | --- | --- |
 | Source | [GitHub repository](https://github.com/rakshitsharma0402/incidentzero); public visibility must be confirmed for submission |
 | Live demo | **Pending deployment** — no verified public URL |
-| Final live video | **Pending live acceptance and upload** |
+| Final live video | [Public YouTube demo](https://youtu.be/RaPNBI7qMDQ) — verified online at 2:31 |
 | Local rehearsal video | [Captioned rehearsal WebM](docs/assets/rehearsal.webm) — mocked model/search/Kubernetes, not live evidence |
 | DEV.to | [Unpublished article draft](docs/submission/article.md) |
 | Devpost | [Submission draft](docs/submission/devpost.md) — not submitted |
@@ -35,7 +35,7 @@ IncidentZero turns that investigation into a visible run: symptoms → evidence 
 
 ## Verification status
 
-The preceding core workflow was verified on real local Kind with **mocked reasoning**. Current deterministic backend and browser tests also mock external boundaries. Live provider connectivity, full UI-to-Kind acceptance, five recorded successful live OOM runs, container-runtime checks, and public deployment remain pending. Firefox is locally blocked at profile startup. See [state of play](docs/INCIDENTZERO_STATE_OF_PLAY.md) for exact recorded checks and limitations.
+Live Nebius/Nemotron and Tavily connectivity, five consecutive real API-to-Kind OOM runs, container-runtime checks, and an additional UI-driven verified recording run are complete. Deterministic backend/browser tests still mock external boundaries by design. Public deployment remains pending, and Firefox is locally blocked at profile startup. See [state of play](docs/INCIDENTZERO_STATE_OF_PLAY.md) for exact recorded checks and limitations.
 
 The internal feature-complete deadline is **October 25, 2026**. October 30 is the submission deadline, not the engineering target. October 25 local materials are prepared; the release is not submission-ready while the live/publication gates remain unresolved.
 
@@ -127,7 +127,7 @@ Set up the real lab with [sandbox/README.md](sandbox/README.md). Do not start a 
 
 | Setting | Purpose |
 | --- | --- |
-| `NEBIUS_API_KEY`, `NEBIUS_BASE_URL`, `NEBIUS_MODEL` | Backend-only reasoning credentials/endpoint/model |
+| `NEBIUS_API_KEY`, `NEBIUS_BASE_URL`, `NEBIUS_MODEL`, `NEBIUS_TIMEOUT_SECONDS` | Backend-only reasoning credentials, endpoint, model, and bounded request timeout |
 | `TAVILY_API_KEY`, `TAVILY_BASE_URL` | Backend-only conditional research |
 | `NEXT_PUBLIC_API_URL` | Public backend origin; export before frontend build/dev for nondefault origins |
 | `CORS_ORIGINS` | Exact allowed frontend origins; HTTPS required in production |

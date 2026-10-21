@@ -21,6 +21,7 @@ class Settings:
     nebius_api_key: str | None
     nebius_base_url: str
     nebius_model: str
+    nebius_timeout_seconds: float
     tavily_api_key: str | None
     tavily_base_url: str
     database_path: str
@@ -39,6 +40,8 @@ class Settings:
             raise ValueError("EXECUTION_MODE must be kubernetes or simulation")
         if not 1 <= self.daily_run_limit <= 100:
             raise ValueError("DAILY_RUN_LIMIT must be between 1 and 100")
+        if not 5 <= self.nebius_timeout_seconds <= 120:
+            raise ValueError("NEBIUS_TIMEOUT_SECONDS must be between 5 and 120")
         for origin in self.cors_origins:
             parsed = urlparse(origin)
             if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.path or parsed.query or parsed.fragment or parsed.username:
@@ -67,6 +70,7 @@ def load_settings() -> Settings:
         nebius_api_key=os.getenv("NEBIUS_API_KEY") or None,
         nebius_base_url=os.getenv("NEBIUS_BASE_URL", "https://api.tokenfactory.nebius.com/v1").rstrip("/"),
         nebius_model=os.getenv("NEBIUS_MODEL", "nvidia/Nemotron-3_5-Lightning"),
+        nebius_timeout_seconds=float(os.getenv("NEBIUS_TIMEOUT_SECONDS", "60")),
         tavily_api_key=os.getenv("TAVILY_API_KEY") or None,
         tavily_base_url=os.getenv("TAVILY_BASE_URL", "https://api.tavily.com").rstrip("/"),
         app_environment=os.getenv("APP_ENV", "local"),

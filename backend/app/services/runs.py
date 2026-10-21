@@ -32,7 +32,8 @@ class LiveExecution:
         if not config.nebius_api_key:
             raise IntegrationNotConfiguredError("Provider not configured")
         nebius = NebiusClient(api_key=config.nebius_api_key, base_url=config.nebius_base_url,
-                              model=config.nebius_model)
+                              model=config.nebius_model,
+                              timeout_seconds=config.nebius_timeout_seconds)
         tavily = TavilyClient(api_key=config.tavily_api_key, base_url=config.tavily_base_url)
         controller = (SimulationController() if config.execution_mode == "simulation"
                       else DemoController(SandboxVerifier(kubectl_binary=config.kubectl_binary)))

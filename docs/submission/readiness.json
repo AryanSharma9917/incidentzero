@@ -35,13 +35,13 @@
     },
     {
       "id": "final_live_video",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "https://youtu.be/RaPNBI7qMDQ — public YouTube metadata returned HTTP 200 and online duration was verified as 151 seconds on 2026-10-21."
     },
     {
       "id": "public_video_url",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "https://youtu.be/RaPNBI7qMDQ"
     },
     {
       "id": "devto_published",

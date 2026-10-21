@@ -52,7 +52,7 @@ Python; FastAPI; Pydantic; LangGraph; SQLite; Server-Sent Events; Next.js; TypeS
 | --- | --- |
 | Source (public visibility still to verify) | https://github.com/rakshitsharma0402/incidentzero |
 | Public demo/test build | PENDING — no deployed URL verified |
-| Final public video (under three minutes) | PENDING — current local WebM is a mocked rehearsal |
+| Final public video (under three minutes) | https://youtu.be/RaPNBI7qMDQ — public, verified online at 2:31 |
 | DEV.to article | PENDING — `article.md` is an unpublished draft |
 | Eight screenshots | `../assets/screenshots/`; visibly marked mocked rehearsal |
 | Architecture | `../assets/architecture.svg`, `../assets/architecture.png` |
@@ -67,4 +67,4 @@ Provide the actual HTTPS URL, access-code instructions if required, execution mo
 
 ## Final review
 
-Use `readiness.json` for unresolved gates. Inspect every asset for accurate mock/simulation labels and secrets. Replace rehearsal footage with a real executed demo after acceptance. Upload the final video, publish the approved article, confirm actual URLs/access, then submit through the team's Devpost account. No Devpost entry, article, or video upload has been performed by this change set.
+Use `readiness.json` for unresolved gates. Inspect every asset for accurate mock/simulation labels and secrets. The final live video is published and verified under three minutes. Publish the approved article, confirm the public demo URL/access and remaining team fields, then submit through the team's Devpost account. No Devpost submission or article publication has been performed by this change set.

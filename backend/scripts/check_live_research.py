@@ -33,6 +33,7 @@ async def main() -> int:
         api_key=settings.nebius_api_key,
         base_url=settings.nebius_base_url,
         model=settings.nebius_model,
+        timeout_seconds=settings.nebius_timeout_seconds,
     )
     tavily = TavilyClient(
         api_key=settings.tavily_api_key,

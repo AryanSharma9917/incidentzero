@@ -17,7 +17,7 @@ This is a reviewable local preparation packet, **not a completed or submitted ha
 | DEV.to draft | `article.md` | `published: false`; no invented provider feedback |
 | Devpost draft | `devpost.md` | Proposed fields plus unresolved URL/team/feedback entries |
 | Acceptance template | `golden-path-results.json` | Pending, zero accepted live runs |
-| Release gates | `readiness.json` | Each remaining prerequisite is explicitly unresolved |
+| Release gates | `readiness.json` | Passed and remaining prerequisites are explicitly recorded |
 
 ## Verification commands
 
@@ -36,13 +36,13 @@ python3 scripts/check_submission.py --inspect-video /absolute/path/to/ffmpeg
 
 ## Release gates
 
-- [ ] Real Nebius/Nemotron connectivity and runtime reasoning verified with authorized quota.
-- [ ] Conditional Tavily branch verified live when requested.
-- [ ] Five distinct successful real OOMKilled product runs, with reviewed evidence and healthy lab reset.
-- [ ] Docker build/runtime smoke on an equipped machine.
+- [x] Real Nebius/Nemotron connectivity and runtime reasoning verified with authorized quota.
+- [x] Conditional Tavily branch verified live when requested.
+- [x] Five distinct successful real OOMKilled product runs, with reviewed evidence and healthy lab reset.
+- [x] Docker build/runtime smoke on an equipped machine.
 - [ ] Actual public deployment URL, HTTPS/CORS/SSE/assets, and judging access checked.
-- [ ] Public repository visibility confirmed; MIT and dependency notices checked.
-- [ ] Final live demonstration recorded under three minutes and publicly uploaded; current WebM is rehearsal only.
+- [x] Public repository visibility confirmed; MIT and dependency notices checked.
+- [x] Final live demonstration publicly uploaded and verified online at 2:31; the repository WebM remains rehearsal-only.
 - [ ] Team roster, attribution, representative consent, project-start declaration, and actual tool feedback confirmed.
 - [ ] Approved DEV.to article published and actual URL added.
 - [ ] Devpost fields reviewed, final links supplied, and submission sent through the team's account.
