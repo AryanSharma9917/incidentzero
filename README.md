@@ -12,9 +12,27 @@ An evidence-driven Kubernetes incident engineer built for the Nebius x NVIDIA Gl
 | Live demo | [Public Render application](https://incidentzero-web.onrender.com) — controlled hosted simulation |
 | Final live video | [Public YouTube demo](https://youtu.be/RaPNBI7qMDQ) — verified online at 2:31 |
 | Local rehearsal video | [Captioned rehearsal WebM](docs/assets/rehearsal.webm) — mocked model/search/Kubernetes, not live evidence |
-| DEV.to | [Unpublished article draft](docs/submission/article.md) |
-| Devpost | [Submission draft](docs/submission/devpost.md) — not submitted |
-| Release status | [Explicit unresolved gates](docs/submission/readiness.json) |
+| DEV.to | [Article draft](docs/submission/article.md) |
+| Devpost | [Public hackathon submission](https://devpost.com/software/incidentzero-cup1qe) |
+| Submission assets | [Submission source and readiness records](docs/submission/) |
+
+## Judge access / Try it out
+
+**Live demo:** https://incidentzero-web.onrender.com
+
+The public Render deployment is the judge-facing version of IncidentZero. It runs in **hosted simulation mode** for infrastructure operations so judges can evaluate the end-to-end product without needing a Kubernetes cluster or production credentials.
+
+Recommended evaluation flow:
+
+1. Open the live demo.
+2. Start with the OOMKilled demonstration scenario.
+3. Run the investigation workflow.
+4. Review the collected evidence, diagnosis and confidence, conditional research, proposed remediation diff, validation results, and generated RCA.
+5. Compare the hosted workflow with the [public demo video](https://youtu.be/RaPNBI7qMDQ) and the real local Kind validation documented in this repository.
+
+No payment is required. If the hosted demo prompts for an access code, judges should use the access information provided in the **Devpost testing instructions**. Access credentials are intentionally not committed to this public repository.
+
+> **Important:** Hosted infrastructure execution is explicitly simulated. Real Kubernetes evidence collection and remediation validation were exercised against the controlled local Kind environment; the public deployment does not receive production-cluster write access.
 
 ## Problem and solution
 
@@ -35,9 +53,9 @@ IncidentZero turns that investigation into a visible run: symptoms → evidence 
 
 ## Verification status
 
-Live Nebius/Nemotron and Tavily connectivity, five consecutive real API-to-Kind OOM runs, container-runtime checks, and an additional UI-driven verified recording run are complete. The public Render application and API passed read-only deployment checks with hosted runs enabled behind an access code and a five-run daily cap. Hosted infrastructure remains explicitly simulated; an authenticated hosted run is still pending. Deterministic backend/browser tests mock external boundaries by design, and Firefox is locally blocked at profile startup. See [state of play](docs/INCIDENTZERO_STATE_OF_PLAY.md) for exact recorded checks and limitations.
+Live Nebius/Nemotron and Tavily connectivity, five consecutive real API-to-Kind OOM runs, container-runtime checks, and an additional UI-driven verified recording run are complete. The public Render application is available as the judge-facing hosted demo, with infrastructure actions clearly labeled as simulation. The real controlled Kind workflow remains the evidence for Kubernetes-side validation. Deterministic backend/browser tests mock external boundaries by design, and Firefox is locally blocked at profile startup. See [state of play](docs/INCIDENTZERO_STATE_OF_PLAY.md) for the recorded checks and limitations.
 
-The internal feature-complete deadline is **October 25, 2026**. October 30 is the submission deadline, not the engineering target. October 25 local materials are prepared; the release is not submission-ready while the live/publication gates remain unresolved.
+IncidentZero has been submitted to the **Nebius x NVIDIA Global AI Hackathon**. The public Render demo, GitHub repository, and YouTube walkthrough are the primary judging assets.
 
 ## Architecture and workflow
 
@@ -161,7 +179,7 @@ For Chromium/WebKit checks and browser installation, see [development.md](docs/d
 # Local artifact/links/labels integrity, no external calls
 python3 scripts/check_submission.py
 
-# Expected to fail while live/deployment/publication gates are pending
+# Release-readiness check; inspect any remaining gates reported by the repository
 python3 scripts/check_submission.py --release-ready
 ```
 
@@ -171,9 +189,13 @@ Only the fixed Kind demo target permits controlled writes. Generated patches can
 
 The public demo is not production-ready enterprise infrastructure. There is no production approval/apply engine, enterprise authentication/RBAC, multi-cluster management, or customer impact measurement. History on ephemeral hosting can disappear, and daily limits are not provider billing caps. See [safety.md](docs/safety.md).
 
-## Roadmap and submission
+## Submission status and next steps
 
-Finish live providers/Kind acceptance, five successful golden-path recordings, container validation, and a verified public URL. Replace the rehearsal with final live video, review team details and provider feedback, publish approved article/video, and submit through Devpost. No final feature-complete or publication claim is made before those gates pass.
+IncidentZero is submitted to the Nebius x NVIDIA Global AI Hackathon with a public GitHub repository, public YouTube walkthrough, and judge-facing Render deployment.
+
+For judging, the hosted demo intentionally favors safe, reproducible simulation of infrastructure operations while the repository documents the real controlled Kind validation used during development. Any access code required by the hosted demo should be supplied through the Devpost testing instructions rather than committed publicly.
+
+Future work includes deeper observability integrations, broader incident coverage, stronger authentication/RBAC, multi-cluster workflows, and production-grade persistence.
 
 ## Team and contribution
 
